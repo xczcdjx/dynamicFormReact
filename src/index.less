@@ -1,0 +1,375 @@
+@f_start: flex-start;
+@f_end: flex-end;
+@f_center: center;
+.centerFlex(@row:@f_center,@col:@f_center) {
+  display: flex;
+  justify-content: @row;
+  align-items: @col;
+}
+
+.dynamicForm {
+  overflow: hidden;
+  padding: 15px;
+
+  &.small {
+    .dyFormList {
+      gap: 6px;
+
+      .typeBtn {
+        padding: 0.2em 0.6em;
+        height: 18px;
+      }
+
+      > .dItem {
+        .input {
+          .key {
+            font-size: 0.7em;
+          }
+
+          .vInput {
+            padding: 0.15em 0.4em;
+
+            .slot {
+              white-space: nowrap;
+
+              > button {
+                padding: 0.1em 0.4em;
+                font-size: 0.8em;
+              }
+            }
+          }
+        }
+
+        .btn {
+          .bt {
+            padding: 0.3em 0.8em;
+          }
+        }
+      }
+    }
+  }
+
+  &.large {
+    .dyFormList {
+      gap: 15px;
+
+      .dItem {
+        column-gap: 20px;
+
+        .input {
+          .key {
+            font-size: 1.2em;
+          }
+
+          .vInput {
+            padding: 0.5em 0.4em;
+
+            input {
+              font-size: 1.2em;
+            }
+
+            .slot {
+              white-space: nowrap;
+
+              > button {
+                padding: 0.15em 0.4em;
+                font-size: 1em;
+              }
+            }
+          }
+        }
+
+        .btn {
+          .bt {
+            padding: 0.8em 1.2em;
+          }
+        }
+      }
+    }
+  }
+
+  .dyFormList {
+    overflow: auto;
+    display: grid;
+    gap: 10px;
+    padding: 10px 5px;
+
+    .dItem {
+      width: 100%;
+      display: grid;
+      grid-template-columns:1fr 100px;
+      column-gap: 0;
+
+      .input {
+        .centerFlex(@row: @f_start);
+        column-gap: 15px;
+
+        .key {
+          text-align: center;
+          width: 150px;
+
+
+          &.nativeInput {
+            border: 1px solid #d2d6dd;
+            padding: 0.5em 0.4em;
+            border-radius: 3px;
+            &:focus{
+              outline: none;
+              box-shadow: 0 0 5px rgba(0, 123, 255, 0.3)
+            }
+          }
+        }
+
+        .vInput {
+          width: 100%;
+          border: 1px solid #d2d6dd;
+          padding: 0.2em 0.4em;
+          border-radius: 3px;
+          display: flex;
+          column-gap: 5px;
+
+          > .value {
+            border: none;
+            width: 100%;
+
+            &.nativeV {
+              letter-spacing: 3px;
+              &:focus{
+                outline: none;
+                //box-shadow: 0 0 5px rgba(0, 123, 255, 0.3)
+              }
+            }
+          }
+
+          .slot {
+            white-space: nowrap;
+
+            > button {
+              font-weight: normal;
+              border-radius: 3px;
+              font-size: 0.8em;
+            }
+          }
+        }
+      }
+
+      .btn {
+        .centerFlex(@row: @f_end);
+        column-gap: 8px;
+
+        .n-button {
+          font-size: 25px;
+          padding: 10px 12px;
+        }
+
+        .el-button + .el-button {
+          margin-left: 0;
+        }
+
+        .bt {
+          padding: 0.5em 1em;
+        }
+      }
+    }
+  }
+
+  .key,.isKey{
+    .el-input__inner {
+      text-align: center;
+    }
+  }
+  .control {
+    .centerFlex();
+    margin-top: 5px;
+    column-gap: 10px;
+  }
+
+  .bt {
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    padding: 0.3em 0.8em;
+    font-size: 0.9em;
+    font-weight: 600;
+    font-family: inherit;
+    background-color: #1a1a1a;
+    cursor: pointer;
+    transition: 0.25s;
+    opacity: 0.9;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  .default {
+    background: #fff;
+    color: #000;
+    border: 1px solid #d2d6dd;
+  }
+
+  .info {
+    background: #8a8e94;
+  }
+
+  .success {
+    background: #63ba39;
+  }
+
+  .danger {
+    background: #ea696a;
+  }
+}
+
+.dynamicCascadeForm {
+  .dynamicForm();
+
+  .dyFormList {
+
+    .dItem {
+      width: inherit;
+      .vInput{
+        .surSlot{
+          white-space: nowrap;
+
+          > button {
+            padding: 0.1em 0.4em;
+            font-size: 0.8em;
+          }
+        }
+      }
+      .input {
+        .key {
+
+        }
+
+        .value {
+          &.isKey {
+            text-align: center;
+            input{
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+
+    > .depth-1 {
+      display: grid;
+      //row-gap: 10px;
+      border: 1px solid var(--c1);
+      border-style: dashed;
+      border-radius: 5px;
+      >.dItem{
+        padding: 5px;
+      }
+       .dItem +.dItem {
+        //padding: 5px;
+         margin-top: 5px;
+      }
+      &.no-pad{
+        >.dItem{
+          padding: 0;
+        }
+      }
+    }
+
+    .depth-1 {
+      /*.depth-2 {
+        border: 1px solid green;
+        border-style: dashed;
+        padding: 5px;
+        border-radius: 5px;
+        margin-top: 10px;
+        display: grid;
+        row-gap: 10px;
+        .dItem{
+          .btn{
+            .n-button{
+              transform: scale(0.9);
+            }
+          }
+        }
+        .depth-3 {
+          border: 1px solid blue;
+          border-style: dashed;
+          padding: 5px;
+          border-radius: 5px;
+          margin-top: 8px;
+          display: grid;
+          row-gap: 8px;
+          .dItem{
+            .btn{
+              .n-button{
+                transform: scale(0.8);
+              }
+            }
+          }
+        }
+      }*/
+      .loop(5); // 生成 depth-1 到 depth-5
+    }
+    .no-border{
+      border: none !important;
+    }
+    .no-pad{
+      padding: 0 !important;
+    }
+  }
+}
+
+.loop(@n, @i: 2) when (@i =< @n) {
+  .depth-@{i} {
+    /* css var 名称插值 */
+    //border: 1px solid ~"var(--c@{i})";
+    border: 1px solid e('var(--c@{i})');
+    border-style: dashed;
+
+    /* 把 @i 转成 px 再做减法，避免单位不匹配 */
+    padding: (10px - (@i * 1px));
+    border-radius: 5px;
+    margin-top: (12px - (@i * 1px));
+
+    /* 乘法里的 px 也需要明确单位 */
+    row-gap: (1px - (@i * 2px));
+
+    .dItem {
+      .btn {
+        .n-button {
+          /* 在 scale 里把表达式包起来（无单位运算） */
+          transform: scale((1 - (@i * 0.08)));
+          /* 如果希望 Less 不计算，可以用 ~"calc(...)" 但这里不需要 */
+        }
+      }
+    }
+
+    /* 递归调用时给出明确的表达式也是个好习惯 */
+    .loop(@n, (@i + 1));
+  }
+}
+
+
+
+
+@media (max-width: 756px) {
+  .dynamicForm {
+    .dyFormList {
+      .dItem {
+        .input {
+          .key {
+            width: 50px;
+          }
+
+          .value {
+            width: calc(100% - 60px);
+          }
+        }
+      }
+    }
+  }
+}
