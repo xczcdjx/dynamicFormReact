@@ -1,4 +1,5 @@
-import DynamicForm from "./components/origin/DynamicForm.tsx";
+// import DynamicForm from "./origin/DynamicForm.tsx";
+import {DynamicForm} from "../dist";
 
 function App() {
     return (<div>
