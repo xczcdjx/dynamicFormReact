@@ -1,5 +1,5 @@
 {
-  "name": "dynamicform-react",
+  "name": "dynamicformdjx-react",
   "version": "0.0.1",
   "type": "module",
   "author": "xczcdjx",
@@ -19,7 +19,7 @@
   "sideEffects": ["**/*.css"],
   "keywords": ["react", "typescript", "dynamicForm"],
   "scripts": {
-    "dev": "vite",
+    "dev-r": "vite",
     "build-r": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

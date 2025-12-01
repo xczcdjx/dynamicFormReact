@@ -1,9 +1,9 @@
-// import DynamicForm from "./origin/DynamicForm.tsx";
-import {DynamicForm} from "../dist";
+// import DynamicInput from "./origin/DynamicInput";
+import {DynamicInput,dynamicFormRef} from "../dist";
 
 function App() {
     return (<div>
-        <DynamicForm/>
+        <DynamicInput/>
     </div>)
 }
 export default App;
