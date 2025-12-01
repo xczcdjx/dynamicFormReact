@@ -1,5 +1,6 @@
 
 import {forwardRef, useImperativeHandle} from "react";
+import type {ExposeType} from "@/types";
 
 type DynamicFormProps = {
     size?: string

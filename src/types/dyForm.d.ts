@@ -41,9 +41,4 @@ declare global {
     type ValueType = Record<string, any>
     // 内部新建键值对id
     type DyRandomFun = (id?: number | string) => string
-    //
-    type ExposeType = {
-        onSet?: (obj?: object) => void
-        getResult?: (t: 'res' | 'ori') => DyCFormItem[] | object
-    }
 }
