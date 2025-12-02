@@ -2,11 +2,12 @@
 
 基于 **React** 的动态表单输入组件。
 
-Vue 版本 [Document](https://xczcdjx.github.io/dynamicFormDoc/)
+React 版本 (正在适配)
+
+Vue3 版本 [Document](https://xczcdjx.github.io/dynamicFormDoc/)
 
 Vue2 版本 (正在适配)
 
-React 版本 (正在适配)
 
 ## 安装
 
@@ -38,7 +39,7 @@ function App() {
         </pre>
         <div>
             <button onClick={() => {
-                dynamicInputRef.current.onSet({
+                dynamicInputRef.current?.onSet?.({
                     test: 'hello World'
                 })
             }}>setData

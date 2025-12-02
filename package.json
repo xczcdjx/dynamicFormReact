@@ -5,6 +5,14 @@
   "author": "xczcdjx",
   "license": "MIT",
   "description": "Dynamic form for React",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xczcdjx/dynamicFormReact"
+  },
+  "homepage": "https://github.com/xczcdjx/dynamicFormReact#readme",
+  "bugs": {
+    "url": "https://github.com/xczcdjx/dynamicFormReact/issues"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

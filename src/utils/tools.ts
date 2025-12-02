@@ -1,3 +1,5 @@
+import type {ValueType, DyCFormItem, DyRandomFun} from "@/types";
+
 const tranArr = (obj: ValueType, arrayFun: DyRandomFun, splitSymbol: string) => Object.keys(obj).map((it, i) => {
     const v = obj[it]
     const isArray = Array.isArray(v)
