@@ -1,6 +1,6 @@
 import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
-import type {ExposeType} from "@/types";
-import {formatNumberInput, resetObj, tranArr} from "../../utils/tools.ts";
+import type {ExposeType,FSize,ValueType,DyRandomFun,DyBtnConfig,DyListConfig,DyConfig,DyCFormItem} from "@/types";
+import {formatNumberInput, resetObj, tranArr} from "@/utils/tools";
 import clsx from "clsx";
 
 type DynamicFormProps = {
@@ -56,7 +56,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicFormProps>((props, ref) => {
     // expose
     useImperativeHandle(ref, () => ({
         getResult(t: "res" | "ori"): DyCFormItem[] | object {
-            return t === 'ori' ? value : resetObj(renderM, ml.arraySplitSymbol);
+            return t === 'ori' ? renderM : resetObj(renderM, ml.arraySplitSymbol);
         }, onSet(o: object | undefined): void {
             setRenderM(tranArr(o ?? value, randomFun, ml.arraySplitSymbol))
         }
@@ -141,10 +141,12 @@ const DynamicInput = forwardRef<ExposeType, DynamicFormProps>((props, ref) => {
                         <button className={clsx([size, 'success', 'bt'])} disabled={i !== arr.length - 1}
                                 onClick={() => {
                                     setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
-                                    setTimeout(() => {
-                                        const el = dyFormListRef.current
-                                        el?.scrollTo({top: el?.scrollHeight + 20, behavior: 'smooth'})
-                                    })
+                                    if (mc.autoScroll){
+                                        setTimeout(() => {
+                                            const el = dyFormListRef.current
+                                            el?.scrollTo({top: el?.scrollHeight + 20, behavior: 'smooth'})
+                                        })
+                                    }
                                 }}>+
                         </button>
                         <button className={clsx([

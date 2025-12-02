@@ -29,5 +29,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["src/App.tsx","src/main.tsx"]
+  "exclude": ["src/App.tsx","src/main.tsx","src/components/**/*.tsx"]
 }

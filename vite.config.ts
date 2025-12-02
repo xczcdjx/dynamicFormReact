@@ -7,8 +7,8 @@ import path from "node:path";
 export default defineConfig({
     plugins: [react(), dts({
         tsconfigPath: './tsconfig.app.json',
-        include: ['src'],
-        copyDtsFiles: true,
+        // include: ['src'],
+        // copyDtsFiles: true,
     }),
         libInjectCss(),],
     resolve: {
