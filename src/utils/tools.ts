@@ -1,4 +1,4 @@
-import type {ValueType, DyCFormItem, DyRandomFun} from "@/types";
+import type {ValueType, DyCFormItem, DyRandomFun, DyCasFormItem} from "@/types";
 
 const tranArr = (obj: ValueType, arrayFun: DyRandomFun, splitSymbol: string) => Object.keys(obj).map((it, i) => {
     const v = obj[it]
@@ -112,11 +112,55 @@ const saferRepairColor = (colors: string[], i: number): string => {
     const c = colors[i - 1]
     return c ?? getDepthColor(i)
 }
+function updateArrayAtPath(
+    items: DyCasFormItem[],
+    path: number[], // 指向某个 item（最后一个数字是下标）
+    updater: (arr: DyCasFormItem[], index: number) => DyCasFormItem[]
+): DyCasFormItem[] {
+    if (path.length === 0) {
+        // root
+        return updater(items, -1);
+    }
+
+    const [head, ...rest] = path;
+
+    // copy
+    const newItems = [...items];
+
+    if (rest.length === 0) {
+        // root local
+        return updater(newItems, head);
+    }
+
+    // children
+    const target = newItems[head];
+    if (!Array.isArray(target.value)) return newItems;
+
+    const newChildren = updateArrayAtPath(
+        target.value as DyCasFormItem[],
+        rest,
+        updater
+    );
+    if (newChildren.length === 0) {
+        newItems[head] = {
+            ...target,
+            value: "",
+            isArray: undefined,
+            isNumber: undefined,
+        }
+    } else newItems[head] = {...target, value: newChildren};
+    return newItems;
+}
+function clsx(clsArr:(string|undefined)[]):string {
+    return clsArr.filter(Boolean).join(' ')
+}
 export {
     tranArr,
     resetObj,
     parseValue,
     formatNumberInput,
     getDepthColor,
-    saferRepairColor
+    saferRepairColor,
+    updateArrayAtPath,
+    clsx
 }

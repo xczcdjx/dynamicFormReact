@@ -1,6 +1,5 @@
 import {useRef, useState} from "react";
-import DynamicCascadeInput from "../origin/DynamicCascadeInput";
-import {dynamicFormRef} from "../index";
+import {DynamicCascadeInput,dynamicCascadeInputRef} from "../../dist";
 
 const App=()=>{
     const [obj,setObj]=useState<Record<string, any>>({
@@ -16,7 +15,7 @@ const App=()=>{
         aa: [5, 2, 0],
         aaa: 1314
     });
-    const dynamicInputRef=useRef<dynamicFormRef>(null)
+    const dynamicInputRef=useRef<dynamicCascadeInputRef>(null)
     return (<div>
         <DynamicCascadeInput ref={dynamicInputRef} isController value={obj} onChange={(e) => setObj(e)}/>
         <pre>
@@ -25,7 +24,7 @@ const App=()=>{
         <div>
             <button onClick={() => {
                 dynamicInputRef.current?.onSet?.({
-
+                    test:'hello world'
                 })
             }}>setData
             </button>

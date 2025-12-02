@@ -8,8 +8,7 @@ import type {
     DyCasFormItem,
     ExposeType,
 } from "@/types";
-import {formatNumberInput, parseValue, saferRepairColor} from "@/utils/tools";
-import clsx from "clsx";
+import {formatNumberInput, parseValue, saferRepairColor, updateArrayAtPath,clsx} from "@/utils/tools";
 
 type DynamicCascadeInputProps = {
     depth?: number;
@@ -28,7 +27,7 @@ type DynamicCascadeInputProps = {
 const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((props, ref) => {
     // props
     const {
-        depth = 3,
+        depth = 5,
         value,
         isController,
         dyCls,
@@ -104,7 +103,7 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
         }, {} as ValueType);
     };
     // render Cascade form
-    const renderFormItems = (items: DyCasFormItem[], depthC = 1, oriObj?: DyCasFormItem) => {
+    const renderFormItems = (items: DyCasFormItem[], depthC = 1, pathPrefix: number[] = []) => {
         return <div className={clsx([
             `depth-${depthC}`,
             mc.showBorder ? '' : 'no-border',
@@ -117,6 +116,7 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                     }}>
             {
                 items.map((r, i, arr) => {
+                    const path = [...pathPrefix, i]; // current depth len
                     const isChildren = Array.isArray(r.value)
                     const isAllow = allowType(typeof r.value)
                     return <div className="dItem" key={r.rId}
@@ -125,17 +125,16 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                             {
                                 !isChildren && <>
                                     <input value={r.key} className="key nativeInput"
-                                           onInput={v=> {
-                                               const key=(v.target as HTMLInputElement).value
-                                               setRenderM(p=>{
-                                                   const next = [...p]
-                                                   const old = next[i]
-                                                   if (depth>1) {
-
-                                                   }
-                                                   else next[i] = {...old, key}
-                                                   return next
-                                               })
+                                           onInput={v => {
+                                               const key = (v.target as HTMLInputElement).value
+                                               setRenderM((prev) =>
+                                                   updateArrayAtPath(prev, path, (arr, idx) => {
+                                                       const next = [...arr];
+                                                       const old = next[idx];
+                                                       next[idx] = {...old, key};
+                                                       return next;
+                                                   })
+                                               );
                                            }}/>
                                     :
                                 </>
@@ -150,7 +149,17 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                                 "bt"
                                             ])}
                                             onClick={() => {
-                                                r.isArray = !r.isArray
+                                                setRenderM((prev) =>
+                                                    updateArrayAtPath(prev, path, (arr, idx) => {
+                                                        const next = [...arr];
+                                                        const old = next[idx];
+                                                        next[idx] = {
+                                                            ...old,
+                                                            isArray: !old.isArray,
+                                                        };
+                                                        return next;
+                                                    })
+                                                );
                                             }}
                                         >
                                             Array
@@ -163,7 +172,17 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                                 "bt"
                                             ])}
                                             onClick={() => {
-                                                r.isNumber = !r.isNumber
+                                                setRenderM((prev) =>
+                                                    updateArrayAtPath(prev, path, (arr, idx) => {
+                                                        const next = [...arr];
+                                                        const old = next[idx];
+                                                        next[idx] = {
+                                                            ...old,
+                                                            isNumber: !old.isNumber,
+                                                        };
+                                                        return next;
+                                                    })
+                                                );
                                             }}
                                         >
                                             Number
@@ -176,19 +195,32 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                     onInput={(tv) => {
                                         const v = (tv.target as HTMLInputElement).value
                                         if (isChildren) {
-                                            r.key = v
+                                            setRenderM((prev) =>
+                                                updateArrayAtPath(prev, path, (arr, idx) => {
+                                                    const next = [...arr];
+                                                    const old = next[idx];
+                                                    next[idx] = {...old, key: v};
+                                                    return next;
+                                                })
+                                            );
                                             return
                                         }
-                                        if (!mc.allowFilter) r.value = v
-                                        else {
-                                            if (r.isNumber) {
-                                                r.value = formatNumberInput(
-                                                    v,
-                                                    r.isArray,
-                                                    ml.arraySplitSymbol
-                                                )
-                                            } else r.value = v
+                                        let newVal = v;
+                                        if (mc.allowFilter && r.isNumber) {
+                                            newVal = formatNumberInput(
+                                                v,
+                                                r.isArray,
+                                                ml.arraySplitSymbol
+                                            );
                                         }
+                                        setRenderM((prev) =>
+                                            updateArrayAtPath(prev, path, (arr, idx) => {
+                                                const next = [...arr];
+                                                const old = next[idx];
+                                                next[idx] = {...old, value: newVal};
+                                                return next;
+                                            })
+                                        );
                                     }}
                                 />
                                 <div className="surSlot">
@@ -200,15 +232,30 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                                     "bt"
                                                 ])}
                                                 onClick={() => {
-                                                    if (isAllow) {
-                                                        r.value = [];
-                                                        r.isArray = undefined
-                                                    }
-                                                    (r.value as DyCasFormItem[]).push({
-                                                        rId: randomFun(),
-                                                        key: "",
-                                                        value: ""
-                                                    });
+                                                    setRenderM((prev) =>
+                                                        updateArrayAtPath(prev, path, (arr, idx) => {
+                                                            const next = [...arr];
+                                                            const old = next[idx];
+
+                                                            const children = Array.isArray(old.value)
+                                                                ? (old.value as DyCasFormItem[])
+                                                                : [];
+
+                                                            const newChildren = [
+                                                                ...children,
+                                                                {rId: randomFun(), key: "", value: ""},
+                                                            ];
+
+                                                            next[idx] = {
+                                                                ...old,
+                                                                isArray: undefined,
+                                                                isNumber: undefined,
+                                                                value: newChildren,
+                                                            };
+
+                                                            return next;
+                                                        })
+                                                    );
                                                 }}
                                             >
                                                 {newChildTxt(r)}
@@ -223,7 +270,16 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                 className={clsx(['success', 'bt'])}
                                 disabled={i !== arr.length - 1}
                                 onClick={() => {
-                                    items.push({rId: randomFun(), key: "", value: ""});
+                                    setRenderM((prev) =>
+                                        updateArrayAtPath(prev, path, (arr, idx) => {
+                                            const next = [...arr];
+                                            next.splice(idx + 1, 0, {
+                                                rId: randomFun(),
+                                                key: "",
+                                                value: "",
+                                            });
+                                            return next;
+                                        }))
                                 }}
                             >
                                 +
@@ -234,19 +290,20 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                     'bt'
                                 ])}
                                 onClick={() => {
-                                    items.splice(i, 1);
-                                    if (items.length < 1) {
-                                        if (oriObj === undefined) return resetMulObj([])
-                                        const fIndex = renderM.findIndex(it2 => it2.rId === oriObj?.rId)
-                                        if (depthC < 1) renderM.splice(fIndex, 1, {...oriObj!, value: ""})
-                                        else oriObj!.value = ""
-                                    }
+
+                                    setRenderM((prev) =>
+                                        updateArrayAtPath(prev, path, (arr, idx) => {
+                                            const next = [...arr];
+                                            next.splice(idx, 1);
+                                            return next;
+                                        })
+                                    );
                                 }}
                             >
                                 -
                             </button>
                         </div>
-                        {Array.isArray(r.value) && renderFormItems(r.value, depthC + 1, r)}
+                        {Array.isArray(r.value) && renderFormItems(r.value, depthC + 1, path)}
                     </div>
                 })
             }
@@ -303,4 +360,6 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
         </div>
     </div>)
 })
+
+
 export default DynamicCascadeInput;

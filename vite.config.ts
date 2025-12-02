@@ -34,10 +34,19 @@ export default defineConfig({
             },
         },
         rollupOptions: {
-            external: ['react'], // 👈 外部依赖
+            external: [
+                'react',
+                'react-dom',
+                'react/jsx-runtime',
+                'react/jsx-dev-runtime',
+                'clsx',
+            ],
             output: {
                 globals: {
                     react: 'React',
+                    'react-dom': 'ReactDOM',
+                    'react/jsx-runtime': 'jsxRuntime',
+                    'react/jsx-dev-runtime': 'jsxDevRuntime',
                 },
             },
         },

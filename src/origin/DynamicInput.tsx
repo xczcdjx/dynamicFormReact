@@ -1,7 +1,6 @@
 import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
 import type {ExposeType,FSize,ValueType,DyRandomFun,DyBtnConfig,DyListConfig,DyConfig,DyCFormItem} from "@/types";
-import {formatNumberInput, resetObj, tranArr} from "@/utils/tools";
-import clsx from "clsx";
+import {formatNumberInput, resetObj, tranArr,clsx} from "@/utils/tools";
 
 type DynamicInputProps = {
     size?: FSize
