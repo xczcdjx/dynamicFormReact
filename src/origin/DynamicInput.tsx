@@ -3,7 +3,7 @@ import type {ExposeType,FSize,ValueType,DyRandomFun,DyBtnConfig,DyListConfig,DyC
 import {formatNumberInput, resetObj, tranArr} from "@/utils/tools";
 import clsx from "clsx";
 
-type DynamicFormProps = {
+type DynamicInputProps = {
     size?: FSize
     value: ValueType,
     isController?: boolean,
@@ -13,16 +13,17 @@ type DynamicFormProps = {
     onReset?: () => void,
     onMerge?: (v: ValueType, ori: DyCFormItem[]) => void,
     btnConfigs?: DyBtnConfig,
-    config?: DyConfig,
+    configs?: DyConfig,
     dyListConfigs?: DyListConfig,
 }
-const DynamicInput = forwardRef<ExposeType, DynamicFormProps>((props, ref) => {
+const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
     // props
     const {
         value,
         size,
+        dyCls,
         isController,
-        config,
+        configs,
         btnConfigs,
         dyListConfigs,
         randomFun = (i?: any) => `${Date.now()}_${i ?? 0}`,
@@ -42,7 +43,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicFormProps>((props, ref) => {
         maxHeight: "300px",
         autoScroll: true,
         allowFilter: true,
-        ...config
+        ...configs
     }
     const ml: DyListConfig = {
         arraySplitSymbol: ',',
@@ -67,7 +68,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicFormProps>((props, ref) => {
         }
     }, [renderM])
     return (
-        <div className={props.dyCls ?? `dynamicInput ${size}`}>
+        <div className={dyCls ?? `dynamicInput ${size}`}>
             <div className="dyFormList" ref={dyFormListRef} style={{maxHeight: mc.maxHeight}}>
                 {renderM.map((r, i, arr) => <div className="dItem" key={r.rId}>
                     <div className="input">
