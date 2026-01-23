@@ -1,0 +1,1 @@
+export const omitFormCommonKey=['value', 'key', 'onChange'] as const

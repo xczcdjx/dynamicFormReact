@@ -15,11 +15,15 @@ export default defineConfig({
         alias: [{find: '@', replacement: path.join(__dirname, './src')}],
         extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
     },
+    server: {
+        port: 6100
+    },
     build: {
         outDir: 'dist',
         lib: {
             entry: {
                 index: 'src/index.ts',
+                antd: 'src/antd/index.ts',
             },
             name: 'DynamicForm',
             formats: ['es', 'cjs'],                // 👈 多入口建议用这两个
@@ -47,6 +51,7 @@ export default defineConfig({
                     'react-dom': 'ReactDOM',
                     'react/jsx-runtime': 'jsxRuntime',
                     'react/jsx-dev-runtime': 'jsxDevRuntime',
+                    'antd': 'antd',
                 },
             },
         },

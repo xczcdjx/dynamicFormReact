@@ -1,3 +1,5 @@
+import type {DyFormItem} from "@/types/form.ts";
+
 export type DyCFormItem = {
     rId: string;
     key: string;
@@ -42,4 +44,11 @@ export type DyRandomFun = (id?: number | string) => string
 export type ExposeType = {
     onSet?: (obj?: object) => void
     getResult?: (t: 'res' | 'ori') => DyCFormItem[] | object
+}
+// form
+export type PresetType = "fullRow" | "grid";
+export type ExposeDyFType = {
+    reset?: (v?: any) => void
+    validator: () => Promise<object>
+    getResult?: (t?: 'res' | 'ori') => DyFormItem[] | object
 }

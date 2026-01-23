@@ -1,10 +1,12 @@
 import SingleInput from "./components/singleInput";
 import CascadeInput from "./components/cascadeInput";
+import SimpleForm from "./components/antd/simpleForm";
 
 function App() {
-    return (<div>
+    return (<>
         {/*<SingleInput/>*/}
-        <CascadeInput/>
-    </div>)
+        {/*<CascadeInput/>*/}
+        <SimpleForm/>
+    </>)
 }
 export default App;

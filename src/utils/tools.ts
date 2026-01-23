@@ -1,4 +1,5 @@
 import type {ValueType, DyCFormItem, DyRandomFun, DyCasFormItem} from "@/types";
+import type {DyFormItem} from "@/types/form.ts";
 
 const tranArr = (obj: ValueType, arrayFun: DyRandomFun, splitSymbol: string) => Object.keys(obj).map((it, i) => {
     const v = obj[it]
@@ -33,35 +34,6 @@ const parseValue = (value: string, isArray?: boolean, isNumber?: boolean, splitS
     }
     return d
 };
-/*// 只允许数字和小数点，顺便兼容数组（用 splitSymbol 分隔）
-const formatNumberInput = (
-    val: string,
-    isArray?: boolean,
-    splitSymbol: string = ','
-) => {
-    // 处理单个数字：只保留数字和一个小数点
-    const sanitizeOne = (s: string) => {
-        // 去掉非数字和小数点
-        s = s.replace(/[^\d.]/g, '')
-        // 只保留第一个小数点
-        const firstDot = s.indexOf('.')
-        if (firstDot !== -1) {
-            s =
-                s.slice(0, firstDot + 1) +
-                s.slice(firstDot + 1).replace(/\./g, '')
-        }
-        return s
-    }
-
-    if (isArray) {
-        return val
-            .split(splitSymbol)
-            .map(item => sanitizeOne(item))
-            .join(splitSymbol)
-    } else {
-        return sanitizeOne(val)
-    }
-}*/
 // 允许数字 / 小数点 / 负号，兼容数组（用 splitSymbol 分隔）
 const formatNumberInput = (
     val: string,
@@ -154,6 +126,19 @@ function updateArrayAtPath(
 function clsx(clsArr:(string|undefined)[]):string {
     return clsArr.filter(Boolean).join(' ')
 }
+function OmitValue<
+    T extends DyFormItem,
+    const K extends readonly (keyof T)[]
+>(f: T, extraKeys?: K): Omit<T, "value" | K[number]> {
+    const res: any = { ...f }
+    delete res.value
+
+    extraKeys?.forEach((k) => {
+        if (k !== "value") delete res[k]
+    })
+
+    return res
+}
 export {
     tranArr,
     resetObj,
@@ -162,5 +147,6 @@ export {
     getDepthColor,
     saferRepairColor,
     updateArrayAtPath,
-    clsx
+    clsx,
+    OmitValue
 }
