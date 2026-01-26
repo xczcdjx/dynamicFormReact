@@ -112,8 +112,25 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
 
     // 初始化/同步：items -> form
     useEffect(() => {
-        form.setFieldsValue(buildValuesFromItems(visibleItems));
+        const patch: any = {};
+
+        visibleItems.forEach((it: any) => {
+            // 只处理自定义组件字段（你想全字段都处理也可以，把 if 去掉）
+            if (!it.isCustom) return;
+
+            const np = toNamePath(it?.path ?? it?.key);
+            const cur = form.getFieldValue(np);
+
+            if (cur === undefined && it.value !== undefined) {
+                setByNamePath(patch, np, it.value);
+            }
+        });
+
+        if (Object.keys(patch).length) {
+            form.setFieldsValue(patch);
+        }
     }, [form, visibleItems]);
+
 
     // form -> items（保持 items.value 实时更新）
     const onValuesChange = (_: any, allValues: any) => {
@@ -167,6 +184,7 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         const node = (
             <Form.Item key={k} name={np}
                        validateTrigger={validateTriggerObj}
+                       initialValue={it.custom ? it.value : undefined}
                        label={it?.label}
                        rules={rules} {...formItemProps}>
                 {renderItem(it, form)}
