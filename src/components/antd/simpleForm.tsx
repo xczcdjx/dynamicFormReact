@@ -1,9 +1,10 @@
 import './index.less'
 import {useRef, useState} from "react";
 import {Button, Form, Input, Radio} from "antd";
-import {AdDynamicForm, type adDynamicFormRef} from "../../../dist/antd";
-import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "../../../dist";
-import type {PresetType} from "../../../dist/types";
+import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
+import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "@/";
+import type {PresetType} from "@/types";
+import type {Rule} from "antd/es/form";
 
 type RowProps = {
     username: string
@@ -13,16 +14,14 @@ type RowProps = {
 }
 const SimpleForm = () => {
     const [presetType, setPresetType] = useState<PresetType>('fullRow')
-    const [formItems, setFormItems] = useReactiveForm<RowProps>([
+    const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
         {
             key: "username",
             label: "用户名",
-            required: true,
-            value: "788797",
-            render2: (f) => {
-                const rest = OmitValue(f, omitFormCommonKey)
-                return <Input placeholder="请输入姓名" {...rest}/>
-            },
+            value: "",
+            allowClear: true,
+            render2: (f) => <Input placeholder="请输入姓名" {...OmitValue(f, omitFormCommonKey)}/>,
+            rule: [{required: true, message: 'Please input your username!',validateTrigger:'onBlur'}],
             span: 12
         },
         {
@@ -33,7 +32,7 @@ const SimpleForm = () => {
             render2: (f) => <Input.Password placeholder="请输入密码"/>,
             span: 8,
             offset: 2,
-            sort: 0
+            // sort: 0
         },
         {
             key: "desc",
@@ -59,9 +58,12 @@ const SimpleForm = () => {
     ])
     const useForm = useDyForm([formItems, setFormItems])
     const antdFormRef = useRef<adDynamicFormRef>(null)
+    const rules: Partial<Record<keyof RowProps, Rule | Rule[]>> = {
+        desc: [{required: true, message: '请输入详情'}]
+    }
     return (
         <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} items={formItems} preset={presetType}/>
+            <AdDynamicForm ref={antdFormRef} rules={rules} validateTrigger={null} items={formItems} preset={presetType}/>
             <div className="footer">
                 <Button color={'green'} variant={'outlined'} onClick={() => {
                     // const res=antdFormRef.current?.getResult?.()

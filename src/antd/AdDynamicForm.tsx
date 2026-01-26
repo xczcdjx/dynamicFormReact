@@ -24,7 +24,7 @@ type AdDynamicFormProps = {
     preset?: PresetType; // 'fullRow' | 'grid'
     formConfig?: FormProps;
     gridConfig?: RowProps;
-    validateTrigger?: string | string[]
+    validateTrigger?: string | null
     // 字段级 rules（外部覆盖内部 required 自动规则）
     rules?: RulesMap;
 };
@@ -70,9 +70,9 @@ function buildValuesFromItems(items: DyFormItem[]) {
 // ---------- component ----------
 const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref) => {
     const [form] = Form.useForm();
-
-    const preset: PresetType = props.preset ?? "fullRow";
     const validateTrigger = props.validateTrigger ?? 'onBlur'
+    const validatorObj = props.validateTrigger === null ? undefined : validateTrigger
+    const preset: PresetType = props.preset ?? "fullRow";
 
     const visibleItems = useMemo(
         () => (props.items ?? []).filter((it: any) => !it?.hidden),
@@ -100,7 +100,7 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
                 rule = {
                     required: true,
                     message: it?.requiredHint?.(labelStr) ?? `${labelStr || it?.key}不能为空`,
-                    validateTrigger,
+                    validateTrigger: validatorObj
                 } satisfies Rule;
             }
 
@@ -159,12 +159,15 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         const k = namePathKey(np);
         const r = mergedRulesMap[k];
         const rules = Array.isArray(r) ? r : r ? [r] : undefined;
-
+        let validateTriggerObj = rules?.map((ru: any) => ru.validateTrigger)?.filter(Boolean) ?? []
+        if (validatorObj) validateTriggerObj = validateTriggerObj.concat(validateTrigger)
         const colProps: ColProps = it?.colProps ?? {span: it?.span ?? 24, offset: it?.offset ?? 0};
         const formItemProps = it?.formItemProps ?? {};
 
         const node = (
-            <Form.Item key={k} name={np} validateTrigger={validateTrigger} label={it?.label}
+            <Form.Item key={k} name={np}
+                       validateTrigger={validateTriggerObj}
+                       label={it?.label}
                        rules={rules} {...formItemProps}>
                 {renderItem(it, form)}
             </Form.Item>

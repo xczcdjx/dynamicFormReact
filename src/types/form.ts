@@ -3,8 +3,8 @@ import type {CSSProperties, ReactNode} from "react";
 export interface SelectOptionItem {
     label?: string
     value: any
-    class?: string;
-    style?: string | CSSProperties;
+    // class?: string;
+    // style?: string | CSSProperties;
     disabled?: boolean;
 }
 
@@ -29,14 +29,15 @@ export interface DyFormItem<K = any, RuleT = any> extends BaseDyFormItem<K> {
     required?: boolean
     requiredHint?: (label: string) => string
     disabled?: boolean
-    clearable?: boolean
+    allowClear?: boolean
     // 以下是简化类型
     type?: "text" | "textarea" | "password"
     rows?: number
     labelField?: string
     valueField?: string
-    filterable?: boolean
-    multiple?: boolean
+    showSearch?: boolean | object
+    showCount?: boolean
+    mode?: 'multiple' | 'tags'
 }
 
 export type PageModal = {
