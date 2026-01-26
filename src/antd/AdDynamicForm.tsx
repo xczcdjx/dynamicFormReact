@@ -112,25 +112,8 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
 
     // 初始化/同步：items -> form
     useEffect(() => {
-        const patch: any = {};
-
-        visibleItems.forEach((it: any) => {
-            // 只处理自定义组件字段（你想全字段都处理也可以，把 if 去掉）
-            if (!it.isCustom) return;
-
-            const np = toNamePath(it?.path ?? it?.key);
-            const cur = form.getFieldValue(np);
-
-            if (cur === undefined && it.value !== undefined) {
-                setByNamePath(patch, np, it.value);
-            }
-        });
-
-        if (Object.keys(patch).length) {
-            form.setFieldsValue(patch);
-        }
+        form.setFieldsValue(buildValuesFromItems(visibleItems));
     }, [form, visibleItems]);
-
 
     // form -> items（保持 items.value 实时更新）
     const onValuesChange = (_: any, allValues: any) => {
@@ -146,7 +129,8 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
             form.setFieldsValue(buildValuesFromItems(visibleItems));
         },
         validator: async () => {
-            const namePaths = visibleItems.map((it: any) => toNamePath(it?.path ?? it?.key));
+            const namePaths = visibleItems
+                .map((it: any) => toNamePath(it?.path ?? it?.key));
             const values = await form.validateFields(namePaths);
 
             // 再同步一遍，确保 items 与 form 完全一致
@@ -180,11 +164,10 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         if (validatorObj) validateTriggerObj = validateTriggerObj.concat(validateTrigger)
         const colProps: ColProps = it?.colProps ?? {span: it?.span ?? 24, offset: it?.offset ?? 0};
         const formItemProps = it?.formItemProps ?? {};
-
         const node = (
-            <Form.Item key={k} name={np}
+            <Form.Item key={k} name={it.isCustom ? undefined : np}
                        validateTrigger={validateTriggerObj}
-                       initialValue={it.custom ? it.value : undefined}
+                       required={it.required}
                        label={it?.label}
                        rules={rules} {...formItemProps}>
                 {renderItem(it, form)}

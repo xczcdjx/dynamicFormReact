@@ -1,7 +1,7 @@
 import {useRef, useState} from "react";
 // import DynamicInput from "../origin/DynamicInput";
 import {DynamicInput} from "../../dist";
-import {dynamicInputRef} from "../index";
+import type {dynamicInputRef} from "../index";
 
 function App() {
     const [obj,setObj]=useState<Record<string, any>>({

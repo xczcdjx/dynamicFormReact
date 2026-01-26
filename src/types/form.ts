@@ -38,6 +38,7 @@ export interface DyFormItem<K = any, RuleT = any> extends BaseDyFormItem<K> {
     showSearch?: boolean | object
     showCount?: boolean
     mode?: 'multiple' | 'tags'
+    isCustom?: boolean
 }
 
 export type PageModal = {

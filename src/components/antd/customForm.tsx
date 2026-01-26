@@ -2,18 +2,23 @@ import './index.less'
 import {useRef, useState} from "react";
 import {Button, Form, Input, Radio, Select} from "antd";
 import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
-import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "@/index";
-import type {PresetType} from "@/types";
+import {
+    DynamicCascadeInput,
+    DynamicInput,
+    type dynamicInputRef,
+    omitFormCommonKey,
+    OmitValue,
+    useDyForm
+} from "@/index";
+import {useReactiveForm} from "@/hooks/useDyForm";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {
     username: string
-    password: string
-    desc: string
-    preset: string
+    job: string
+    json: object
 }
-const SimpleForm = () => {
-    const [presetType, setPresetType] = useState<PresetType>('fullRow')
+const CustomForm = () => {
     const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
         {
             key: "username",
@@ -21,43 +26,50 @@ const SimpleForm = () => {
             value: "",
             allowClear: true,
             render2: (f) => <Input placeholder="请输入姓名" {...OmitValue(f, omitFormCommonKey)}/>,
-            rule: [{required: true, message: 'Please input your username!',validateTrigger:'onBlur'}],
+            rule: [{required: true, message: 'Please input your username!', validateTrigger: 'onBlur'}],
             span: 12
         },
         {
-            key: "password",
-            label: "密码",
-            required: true,
+            key: "job",
+            label: "职位",
             value: "",
-            render2: (f) => <Input.Password placeholder="请输入密码" {...OmitValue(f, omitFormCommonKey)}/>,
-            span: 8,
-            offset: 2,
-            sort: 0
+            required: true,
+            render2: (f) => <Select
+                options={[
+                    {value: 'jack', label: 'Jack'},
+                    {value: 'lucy', label: 'Lucy'},
+                    {value: 'Yiminghe', label: 'yiminghe'},
+                    {value: 'disabled', label: 'Disabled', disabled: true},
+                ]}
+            />,
         },
         {
-            key: "preset",
-            label: "表格预设",
-            value: "fullRow",
-            render2: (f) => <Radio.Group
-                value={f.value}
-                options={[
-                    {value: 'fullRow', label: 'row'},
-                    {value: 'grid', label: 'grid'},
-                ]}
-                onChange={(v) => {
-                    setPresetType(v.target.value)
-                }}
-            />,
-        }
+            key: "json",
+            label: "Json",
+            value: {},
+            isCustom: true,
+            required: true,
+            rule: [{
+                required: true,
+                async validator(rule: any, value: any, callback: any) {
+                    console.log(value, '312312123')
+                    return Object.keys(value).length > 0
+                },
+                message: 'json 不能为空'
+            }],
+            render2: f => {
+                return <DynamicCascadeInput ref={dynamicInputRef} value={f.value} onChange={(v: object) => {
+                    f.value = v
+                }} isController/>
+            },
+        },
     ])
     const useForm = useDyForm([formItems, setFormItems])
     const antdFormRef = useRef<adDynamicFormRef>(null)
-    const rules: Partial<Record<keyof RowProps, Rule | Rule[]>> = {
-        desc: [{required: true, message: '请输入详情'}]
-    }
+    const dynamicInputRef = useRef<dynamicInputRef>(null)
     return (
         <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} rules={rules} validateTrigger={null} items={formItems} preset={presetType}/>
+            <AdDynamicForm ref={antdFormRef} validateTrigger={null} items={formItems}/>
             <div className="footer">
                 <Button color={'green'} variant={'outlined'} onClick={() => {
                     // const res=antdFormRef.current?.getResult?.()
@@ -67,7 +79,12 @@ const SimpleForm = () => {
                 <Button color={'orange'} variant={'outlined'} onClick={() => {
                     useForm.setValues({
                         username: 'antd',
-                        password: 'I love you'
+                        job: 'jack'
+                    })
+                    dynamicInputRef.current?.onSet?.({
+                        a: 'Hello world',
+                        b: 1314,
+                        c: [5, 2, 0]
                     })
                 }}>setData</Button>
                 <Button color={'blue'} variant={'outlined'} onClick={() => {
@@ -79,13 +96,11 @@ const SimpleForm = () => {
                 }}>validator</Button>
                 <Button color={'red'} variant={'outlined'} onClick={() => {
                     useForm.onReset()
+                    dynamicInputRef.current?.onSet?.({})
                 }}>reset</Button>
-                <Button variant={'outlined'} onClick={() => {
-                    useForm.setDisabled(true)
-                }}>setDisabled</Button>
             </div>
         </div>
     );
 };
 
-export default SimpleForm;
+export default CustomForm;

@@ -92,7 +92,11 @@
     overflow: auto;
     display: grid;
     gap: 10px;
-    padding: 10px 5px;
+    padding: 0 5px 10px 5px;
+
+    &.noList {
+      padding: 0;
+    }
 
     .dItem {
       width: 100%;
@@ -113,7 +117,8 @@
             border: 1px solid #d2d6dd;
             padding: 0.5em 0.4em;
             border-radius: 3px;
-            &:focus{
+
+            &:focus {
               outline: none;
               box-shadow: 0 0 5px rgba(0, 123, 255, 0.3)
             }
@@ -134,7 +139,8 @@
 
             &.nativeV {
               letter-spacing: 3px;
-              &:focus{
+
+              &:focus {
                 outline: none;
                 //box-shadow: 0 0 5px rgba(0, 123, 255, 0.3)
               }
@@ -173,15 +179,20 @@
     }
   }
 
-  .key,.isKey{
+  .key, .isKey {
     .el-input__inner {
       text-align: center;
     }
   }
+
   .control {
     .centerFlex();
     margin-top: 5px;
     column-gap: 10px;
+
+    &.noList {
+      margin-top: 0;
+    }
   }
 
   .bt {
@@ -224,7 +235,8 @@
   .danger {
     background: #ea696a;
   }
-  .aaa{
+
+  .aaa {
     color: red;
   }
 }
@@ -233,11 +245,19 @@
   .dynamicInput();
 
   .dyFormList {
+    &.noObj {
+      padding: 0;
+
+      .depth-1 {
+        display: none;
+      }
+    }
 
     .dItem {
       width: inherit;
-      .vInput{
-        .surSlot{
+
+      .vInput {
+        .surSlot {
           white-space: nowrap;
 
           > button {
@@ -246,6 +266,7 @@
           }
         }
       }
+
       .input {
         .key {
 
@@ -254,7 +275,8 @@
         .value {
           &.isKey {
             text-align: center;
-            input{
+
+            input {
               font-weight: bold;
             }
           }
@@ -268,15 +290,18 @@
       border: 1px solid var(--c1);
       border-style: dashed;
       border-radius: 5px;
-      >.dItem{
+
+      > .dItem {
         padding: 5px;
       }
-       .dItem +.dItem {
+
+      .dItem + .dItem {
         //padding: 5px;
-         margin-top: 5px;
+        margin-top: 5px;
       }
-      &.no-pad{
-        >.dItem{
+
+      &.no-pad {
+        > .dItem {
           padding: 0;
         }
       }
@@ -317,11 +342,19 @@
       }*/
       .loop(5); // 生成 depth-1 到 depth-5
     }
-    .no-border{
+
+    .no-border {
       border: none !important;
     }
-    .no-pad{
+
+    .no-pad {
       padding: 0 !important;
+    }
+  }
+
+  .control {
+    &.noObj {
+      margin: 0;
     }
   }
 }

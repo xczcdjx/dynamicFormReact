@@ -1,6 +1,15 @@
 import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
-import type {ExposeType,FSize,ValueType,DyRandomFun,DyBtnConfig,DyListConfig,DyConfig,DyCFormItem} from "@/types";
-import {formatNumberInput, resetObj, tranArr,clsx} from "@/utils/tools";
+import type {
+    ExposeType,
+    FSize,
+    ValueType,
+    DyRandomFun,
+    DyBtnConfig,
+    DyListConfig,
+    DyConfig,
+    DyCFormItem
+} from "@/types";
+import {formatNumberInput, resetObj, tranArr, clsx} from "@/utils/tools";
 
 type DynamicInputProps = {
     size?: FSize
@@ -18,7 +27,7 @@ type DynamicInputProps = {
 const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
     // props
     const {
-        value,
+        value = {},
         size,
         dyCls,
         isController,
@@ -67,8 +76,9 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
         }
     }, [renderM])
     return (
-        <div className={dyCls ?? `dynamicInput ${size}`}>
-            <div className="dyFormList" ref={dyFormListRef} style={{maxHeight: mc.maxHeight}}>
+        <div className={`dynamicInput ${size} ${dyCls}`}>
+            <div className={`dyFormList ${!renderM.length ? 'noList' : ''}`} ref={dyFormListRef}
+                 style={{maxHeight: mc.maxHeight}}>
                 {renderM.map((r, i, arr) => <div className="dItem" key={r.rId}>
                     <div className="input">
                         <input value={r.key} className="key nativeInput" onInput={v => {
@@ -141,7 +151,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
                         <button className={clsx([size, 'success', 'bt'])} disabled={i !== arr.length - 1}
                                 onClick={() => {
                                     setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
-                                    if (mc.autoScroll){
+                                    if (mc.autoScroll) {
                                         setTimeout(() => {
                                             const el = dyFormListRef.current
                                             el?.scrollTo({top: el?.scrollHeight + 20, behavior: 'smooth'})
@@ -161,7 +171,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
                 </div>)}
             </div>
             {
-                <div className='control'>
+                <div className={`control ${!renderM.length ? 'noList' : ''}`}>
                     {
                         !renderM.length && <button className={clsx([
                             "success",

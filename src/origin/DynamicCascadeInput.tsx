@@ -8,7 +8,7 @@ import type {
     DyCasFormItem,
     ExposeType,
 } from "@/types";
-import {formatNumberInput, parseValue, saferRepairColor, updateArrayAtPath,clsx} from "@/utils/tools";
+import {formatNumberInput, parseValue, saferRepairColor, updateArrayAtPath, clsx} from "@/utils/tools";
 
 type DynamicCascadeInputProps = {
     depth?: number;
@@ -314,9 +314,10 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
             onChange(resetMulObj(renderM))
         }
     }, [renderM])
-    return (<div className={dyCls ?? `dynamicCascadeInput`}>
-        <div className="dyFormList" style={{maxHeight: mc.maxHeight}}>{renderFormItems(renderM)}</div>
-        <div className='control'>
+    return (<div className={`dynamicCascadeInput ${dyCls}`}>
+        <div className={`dyFormList ${!renderM.length ? 'noObj' : ''}`}
+             style={{maxHeight: mc.maxHeight}}>{renderFormItems(renderM)}</div>
+        <div className={`control ${!renderM.length ? 'noObj' : ''}`}>
             {!renderM.length && (
                 <button
                     className={clsx([
