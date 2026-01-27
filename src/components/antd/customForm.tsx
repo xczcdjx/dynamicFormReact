@@ -85,7 +85,7 @@ const CustomForm = () => {
     const dynamicInputRef = useRef<dynamicInputRef>(null)
     return (
         <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} validateTrigger={null} items={formItems}/>
+            <AdDynamicForm ref={antdFormRef} items={formItems}/>
             <div className="footer">
                 <Button color={'green'} variant={'outlined'} onClick={() => {
                     // const res=antdFormRef.current?.getResult?.()

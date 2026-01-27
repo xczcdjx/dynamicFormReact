@@ -113,7 +113,6 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
                 inner[k] = rule;
                 if (it.isCustom) {
                     const rules = Array.isArray(rule) ? rule : [rule]
-                    console.log(rules[1]?.validator)
                     setCustomFeed(p => ({
                         ...p,
                         [np]: {
@@ -149,16 +148,17 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         validator: async () => {
             const namePaths = visibleItems.filter(it => !it.isCustom)
                 .map((it: any) => toNamePath(it?.path ?? it?.key));
+            // origin validator
             const values = await form.validateFields(namePaths);
             let customValues: any = {}
-            // 2) 自定义字段手动校验（含外部 rules 覆盖）
+            // 2 custom validator
             const customItems = visibleItems.filter(it => it.isCustom);
             const errorFields: { name: string; errors: string[] }[] = [];
 
             for (const it of customItems) {
                 const np = toNamePath(it?.path ?? it?.key);
                 const k = namePathKey(np);
-                const r = mergedRulesMap[k]; // ✅ 外部 rules 覆盖后的最终规则
+                const r = mergedRulesMap[k];
                 const rules = Array.isArray(r) ? r : r ? [r] : [];
 
                 setCustomFeed(p => ({...p, [k]: {status: "validating", help: ""}}));
@@ -174,7 +174,6 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
             }
 
             if (errorFields.length) {
-                // 让外部 .catch 能拿到
                 return Promise.reject({errorFields, outOfDate: false});
             }
             // 再同步一遍，确保 items 与 form 完全一致
@@ -183,7 +182,7 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
                 const np = toNamePath(it?.path ?? it?.key);
                 it.value = getByNamePath(all, np);
             });*/
-
+            // merge data
             return {...values, ...customValues};
         },
         getResult: (t: "res" | "ori" = "res") => {
@@ -214,7 +213,7 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
                 key={k}
                 name={undefined}
                 label={it?.label}
-                required={!!it?.required||customFeed[k]}
+                required={!!it?.required || customFeed[k]}
                 validateStatus={status}
                 help={status === 'error' ? help : undefined}
                 {...formItemProps}
