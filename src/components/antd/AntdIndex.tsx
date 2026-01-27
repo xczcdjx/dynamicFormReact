@@ -4,8 +4,8 @@ import CustomForm from "@/components/antd/customForm.tsx";
 const AntdIndex = () => {
     return (
         <>
-            {/*<SimpleForm/>*/}
-            <CustomForm/>
+            <SimpleForm/>
+            {/*<CustomForm/>*/}
         </>
     );
 };
