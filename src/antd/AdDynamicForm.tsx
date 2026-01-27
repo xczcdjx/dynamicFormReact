@@ -3,7 +3,7 @@ import {
     useEffect,
     useMemo,
     useImperativeHandle,
-    type ReactNode,
+    type ReactNode, useState,
 } from "react";
 import {Form, Row, Col} from "antd";
 import type {FormInstance, FormProps, RowProps, ColProps} from "antd";
@@ -74,6 +74,11 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
     const validatorObj = props.validateTrigger === null ? undefined : validateTrigger
     const preset: PresetType = props.preset ?? "fullRow";
 
+    const [customFeed, setCustomFeed] = useState<Record<string, {
+        status?: "" | "success" | "warning" | "error" | "validating";
+        help?: string;
+    }>>({});
+
     const visibleItems = useMemo(
         () => (props.items ?? []).filter((it: any) => !it?.hidden),
         [props.items]
@@ -104,7 +109,20 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
                 } satisfies Rule;
             }
 
-            if (rule) inner[k] = rule;
+            if (rule) {
+                inner[k] = rule;
+                if (it.isCustom) {
+                    const rules = Array.isArray(rule) ? rule : [rule]
+                    console.log(rules[1]?.validator)
+                    setCustomFeed(p => ({
+                        ...p,
+                        [np]: {
+                            status: false,
+                            help: rules.map(it => it.message).filter(Boolean).join(','),
+                        }
+                    }))
+                }
+            }
         });
 
         return {...inner, ...(props.rules ?? {})}; // 外部覆盖
@@ -129,18 +147,44 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
             form.setFieldsValue(buildValuesFromItems(visibleItems));
         },
         validator: async () => {
-            const namePaths = visibleItems
+            const namePaths = visibleItems.filter(it => !it.isCustom)
                 .map((it: any) => toNamePath(it?.path ?? it?.key));
             const values = await form.validateFields(namePaths);
+            let customValues: any = {}
+            // 2) 自定义字段手动校验（含外部 rules 覆盖）
+            const customItems = visibleItems.filter(it => it.isCustom);
+            const errorFields: { name: string; errors: string[] }[] = [];
 
+            for (const it of customItems) {
+                const np = toNamePath(it?.path ?? it?.key);
+                const k = namePathKey(np);
+                const r = mergedRulesMap[k]; // ✅ 外部 rules 覆盖后的最终规则
+                const rules = Array.isArray(r) ? r : r ? [r] : [];
+
+                setCustomFeed(p => ({...p, [k]: {status: "validating", help: ""}}));
+                customValues = {...customValues, [k]: it.value}
+                try {
+                    await runRules(it.value, rules);
+                    setCustomFeed(p => ({...p, [k]: {status: "success", help: ""}}));
+                } catch (e: any) {
+                    const msg = e?.message || rules.map(x => (x as any).message).filter(Boolean).join(",");
+                    setCustomFeed(p => ({...p, [k]: {status: "error", help: msg}}));
+                    errorFields.push({name: k, errors: [msg]});
+                }
+            }
+
+            if (errorFields.length) {
+                // 让外部 .catch 能拿到
+                return Promise.reject({errorFields, outOfDate: false});
+            }
             // 再同步一遍，确保 items 与 form 完全一致
-            const all = form.getFieldsValue(true);
+            /*const all = form.getFieldsValue(true);
             visibleItems.forEach((it: any) => {
                 const np = toNamePath(it?.path ?? it?.key);
                 it.value = getByNamePath(all, np);
-            });
+            });*/
 
-            return values;
+            return {...values, ...customValues};
         },
         getResult: (t: "res" | "ori" = "res") => {
             return t === "ori" ? visibleItems : buildValuesFromItems(visibleItems);
@@ -164,15 +208,30 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         if (validatorObj) validateTriggerObj = validateTriggerObj.concat(validateTrigger)
         const colProps: ColProps = it?.colProps ?? {span: it?.span ?? 24, offset: it?.offset ?? 0};
         const formItemProps = it?.formItemProps ?? {};
-        const node = (
-            <Form.Item key={k} name={it.isCustom ? undefined : np}
-                       validateTrigger={validateTriggerObj}
-                       required={it.required}
-                       label={it?.label}
-                       rules={rules} {...formItemProps}>
+        const {status, help} = customFeed[k] ?? {status: undefined, help: undefined}
+        const node = it.isCustom ? (
+            <Form.Item
+                key={k}
+                name={undefined}
+                label={it?.label}
+                required={!!it?.required||customFeed[k]}
+                validateStatus={status}
+                help={status === 'error' ? help : undefined}
+                {...formItemProps}
+            >
                 {renderItem(it, form)}
             </Form.Item>
-        );
+        ) : (
+            <Form.Item
+                key={k}
+                name={np}
+                label={it?.label}
+                rules={rules}
+                validateTrigger={validateTriggerObj}
+                {...formItemProps}
+            >
+                {renderItem(it, form)}
+            </Form.Item>);
 
         return preset === "grid" ? (
             <Col key={k} {...colProps}>
@@ -201,5 +260,34 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
         </div>
     );
 });
+
+function isEmpty(v: any) {
+    if (v === undefined || v === null || v === "") return true;
+    if (Array.isArray(v) && v.length === 0) return true;
+    // 空对象也认为空（适用于 json）
+    if (typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0) return true;
+    return false;
+}
+
+/**
+ * 只执行外部传入的 rules：required + validator
+ * 约定：validator 失败必须 throw/reject(Error)
+ */
+async function runRules(value: any, rules: Rule[]) {
+    for (const r of rules) {
+        const rr: any = r;
+
+        // required
+        if (rr?.required && isEmpty(value)) {
+            throw new Error(rr?.message || "必填");
+        }
+
+        // validator（完全按 antd 规范）
+        if (typeof rr?.validator === "function") {
+            await rr.validator(rr, value);
+        }
+    }
+}
+
 
 export default AdDynamicForm;

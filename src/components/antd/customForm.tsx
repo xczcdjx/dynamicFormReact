@@ -3,7 +3,6 @@ import {useRef, useState} from "react";
 import {Button, Form, Input, Radio, Select} from "antd";
 import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
 import {
-    DynamicCascadeInput,
     DynamicInput,
     type dynamicInputRef,
     omitFormCommonKey,
@@ -26,7 +25,20 @@ const CustomForm = () => {
             value: "",
             allowClear: true,
             render2: (f) => <Input placeholder="请输入姓名" {...OmitValue(f, omitFormCommonKey)}/>,
-            rule: [{required: true, message: 'Please input your username!', validateTrigger: 'onBlur'}],
+            rule: [
+                {
+                    required: true,
+                    message: 'Please confirm your username!',
+                },
+                {
+                    validator: async (_, value) => {
+                        if (!value) return; // 交给 required 处理
+                        if (value.length < 3) {
+                            throw new Error('至少 3 个字符');
+                        }
+                    },
+                }
+            ],
             span: 12
         },
         {
@@ -48,17 +60,21 @@ const CustomForm = () => {
             label: "Json",
             value: {},
             isCustom: true,
-            required: true,
-            rule: [{
-                required: true,
-                async validator(rule: any, value: any, callback: any) {
-                    console.log(value, '312312123')
-                    return Object.keys(value).length > 0
+            rule: [
+                {
+                    required: true,
+                    message: 'json 不能为空'
                 },
-                message: 'json 不能为空'
-            }],
+                {
+                    validator: async (_, value) => {
+                        if (!value || Object.keys(value).length === 0) {
+                            throw new Error('json 不能为空');
+                        }
+                    },
+                }
+            ],
             render2: f => {
-                return <DynamicCascadeInput ref={dynamicInputRef} value={f.value} onChange={(v: object) => {
+                return <DynamicInput ref={dynamicInputRef} value={f.value} onChange={(v: object) => {
                     f.value = v
                 }} isController/>
             },
@@ -91,7 +107,7 @@ const CustomForm = () => {
                     antdFormRef.current?.validator().then(v => {
                         console.log(v)
                     }).catch(r => {
-                        console.log(r)
+                        console.error(r)
                     })
                 }}>validator</Button>
                 <Button color={'red'} variant={'outlined'} onClick={() => {
