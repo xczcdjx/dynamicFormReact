@@ -1,15 +1,14 @@
-import './index.less'
-import {useRef, useState} from "react";
-import {Button, Form, Input, Radio, Select} from "antd";
-import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
+import {useRef} from "react";
+import {Button, Input, Select} from "antd";
 import {
     DynamicInput,
     type dynamicInputRef,
     omitFormCommonKey,
     OmitValue,
-    useDyForm
-} from "@/index";
-import {useReactiveForm} from "@/hooks/useDyForm";
+    useDyForm,
+    useReactiveForm
+} from "../../../dist";
+import {AdDynamicForm, type adDynamicFormRef} from "../../../dist/antd";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {
@@ -39,7 +38,6 @@ const CustomForm = () => {
                     },
                 }
             ],
-            span: 12
         },
         {
             key: "job",
@@ -47,6 +45,9 @@ const CustomForm = () => {
             value: "",
             required: true,
             render2: (f) => <Select
+                style={{
+                    width: '100%'
+                }}
                 options={[
                     {value: 'jack', label: 'Jack'},
                     {value: 'lucy', label: 'Lucy'},
@@ -86,7 +87,10 @@ const CustomForm = () => {
     return (
         <div className='dynamicFormTest'>
             <AdDynamicForm ref={antdFormRef} items={formItems}/>
-            <div className="footer">
+            <div className="footer" style={{
+                display: 'flex',
+                gap: '5px'
+            }}>
                 <Button color={'green'} variant={'outlined'} onClick={() => {
                     // const res=antdFormRef.current?.getResult?.()
                     const res = useForm.getValues()

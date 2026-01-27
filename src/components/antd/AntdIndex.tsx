@@ -1,11 +1,11 @@
-import SimpleForm from "@/components/antd/simpleForm.tsx";
-import CustomForm from "@/components/antd/customForm.tsx";
+import SimpleForm from "./simpleForm";
+import CustomForm from "./customForm";
 
 const AntdIndex = () => {
     return (
         <>
-            <SimpleForm/>
-            {/*<CustomForm/>*/}
+            {/*<SimpleForm/>*/}
+            <CustomForm/>
         </>
     );
 };

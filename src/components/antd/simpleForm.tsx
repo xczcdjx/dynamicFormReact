@@ -1,11 +1,9 @@
-import './index.less'
 import {useRef, useState} from "react";
-import {Button, Form, Input, Radio, Select} from "antd";
-import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
-import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "@/index";
-import type {PresetType} from "@/types";
+import {Button, Input, Radio} from "antd";
+import {AdDynamicForm, type adDynamicFormRef, renderInput} from "../../../dist/antd";
+import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "../../../dist";
+import type {PresetType} from "../../../dist/types";
 import type {Rule} from "antd/es/form";
-import {renderInput} from "@/antd/hooks/renderForm.tsx";
 
 type RowProps = {
     username: string
@@ -22,14 +20,7 @@ const SimpleForm = () => {
             value: "",
             allowClear: true,
             rule: [{required: true, message: 'Please input your username!', validateTrigger: 'onBlur'}],
-            render2: f => renderInput({
-                onChange(e) {
-                    console.log(e)
-                }
-            }, f),
-            onChange(v) {
-                console.log(v)
-            },
+            render2: f => renderInput({}, f),
             span: 12
         },
         {
@@ -67,7 +58,10 @@ const SimpleForm = () => {
         <div className='dynamicFormTest'>
             <AdDynamicForm ref={antdFormRef} rules={rules} validateTrigger={null} items={formItems}
                            preset={presetType}/>
-            <div className="footer">
+            <div className="footer" style={{
+                display:'flex',
+                gap:'5px'
+            }}>
                 <Button color={'green'} variant={'outlined'} onClick={() => {
                     // const res=antdFormRef.current?.getResult?.()
                     const res = useForm.getValues()

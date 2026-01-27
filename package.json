@@ -1,6 +1,6 @@
 {
   "name": "dynamicformdjx-react",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "type": "module",
   "author": "xczcdjx",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/xczcdjx/dynamicFormReact"
   },
-  "homepage": "https://github.com/xczcdjx/dynamicFormReact#readme",
+  "homepage": "https://xczcdjx.github.io/dynamicFormDoc/react/install.html",
   "bugs": {
     "url": "https://github.com/xczcdjx/dynamicFormReact/issues"
   },

@@ -1,5 +1,5 @@
 import {useRef, useState} from "react";
-import {DynamicCascadeInput,dynamicCascadeInputRef} from "../../dist";
+import {DynamicCascadeInput,type dynamicCascadeInputRef} from "../../dist";
 
 const App=()=>{
     const [obj,setObj]=useState<Record<string, any>>({
