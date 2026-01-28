@@ -4,8 +4,8 @@ import CustomForm from "./customForm";
 const AntdIndex = () => {
     return (
         <>
-            {/*<SimpleForm/>*/}
-            <CustomForm/>
+            <SimpleForm/>
+            {/*<CustomForm/>*/}
         </>
     );
 };
