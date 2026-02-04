@@ -1,27 +1,33 @@
 import {useRef, useState} from "react";
 import {Button, Input, Radio} from "antd";
-import {AdDynamicForm, type adDynamicFormRef, renderInput} from "../../../dist/antd";
-import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "../../../dist";
-import type {PresetType} from "../../../dist/types";
+import {AdDynamicForm, type adDynamicFormRef, renderInput, renderSelect} from "@/antd";
+import {useDyForm, useReactiveForm} from "@/index";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {
     username: string
     password: string
+    gender: number
+    description: string
+    email: string
+    birthday: string
     desc: string
-    preset: string
+    sex: number
+    birthdayT: number
+    admin: number
+    favorite: number[]
+    job: number
+    job2: number
+    job3: number
 }
-const SimpleForm = () => {
-    const [presetType, setPresetType] = useState<PresetType>('fullRow')
+const AllForm = () => {
     const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
         {
             key: "username",
             label: "用户名",
             value: "",
             allowClear: true,
-            rule: [{required: true, message: 'Please input your username!', validateTrigger: 'onBlur'}],
             render2: f => renderInput({}, f),
-            span: 12
         },
         {
             key: "password",
@@ -29,26 +35,22 @@ const SimpleForm = () => {
             required: true,
             value: "",
             render2: (f) => renderInput({}, {...f, type: 'password'}),
-            span: 8,
-            offset: 2,
-            sort: 0
+        },
+        {
+            key: "gender",
+            label: "性别",
+            value: null,
+            placeholder: '请选择性别',
+            labelField: 'f',
+            valueField: 'v',
+            showSearch: true,
+            options: [
+                {f: '男', v: 0},
+                {f: '女', v: 1}
+            ],
+            render2: (f) => renderSelect([], {}, f)
         },
 
-        {
-            key: "preset",
-            label: "表格预设",
-            value: "fullRow",
-            render2: (f) => <Radio.Group
-                value={f.value}
-                options={[
-                    {value: 'fullRow', label: 'row'},
-                    {value: 'grid', label: 'grid'},
-                ]}
-                onChange={(v) => {
-                    setPresetType(v.target.value)
-                }}
-            />,
-        }
     ])
     const useForm = useDyForm([formItems, setFormItems])
     const antdFormRef = useRef<adDynamicFormRef>(null)
@@ -57,8 +59,7 @@ const SimpleForm = () => {
     }
     return (
         <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} rules={rules} validateTrigger={null} items={formItems}
-                           preset={presetType}/>
+            <AdDynamicForm ref={antdFormRef} rules={rules} items={formItems}/>
             <div className="footer" style={{
                 display: 'flex',
                 gap: '5px'
@@ -92,4 +93,4 @@ const SimpleForm = () => {
     );
 };
 
-export default SimpleForm;
+export default AllForm;

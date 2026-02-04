@@ -71,4 +71,5 @@ export type ZealColumn<T extends Record<string, any>> = {
     resizable?: boolean;
     render2?: (row: T, $index: number) => ReactNode;
     slot?: string;
+    formItemProps?: Record<string, any>
 };
