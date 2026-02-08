@@ -2,10 +2,10 @@ import {useRef, useState} from "react";
 import {Button, Input, Radio} from "antd";
 import {
     AdDynamicForm,
-    type adDynamicFormRef,
+    type adDynamicFormRef, renderCheckboxGroup, renderDatePicker,
     renderInput,
-    renderPopSelect,
-    renderSelect,
+    renderPopSelect, renderRadioButtonGroup, renderRadioGroup,
+    renderSelect, renderSwitch, renderTimePicker,
     renderTreeSelect
 } from "@/antd";
 import {useDyForm, useReactiveForm} from "@/index";
@@ -102,8 +102,51 @@ const AllForm = () => {
                     {l: 'bbb' + index, v: 'bbb' + index},
                 ]
             })),
-            mode: 'multiple',
+            // mode: 'multiple',
             render2: f => renderPopSelect([], {}, f),
+        },
+        {
+            key: "sex",
+            label: "性别",
+            labelField: 'label1',
+            valueField: 'value1',
+            value: null,
+            options: [
+                {label1: '男', value1: 0}, {label1: '女', value1: 1},
+            ],
+            render2: f => renderRadioGroup([], {}, f),
+        },
+        {
+            key: "favorite",
+            label: "爱好",
+            labelField: 'fl',
+            valueField: 'fv',
+            sort: 1,
+            options: [
+                {fl: '吃饭', fv: 0},
+                {fl: '睡觉', fv: 1},
+                {fl: '打豆豆', fv: 2},
+            ],
+            value: [],
+            render2: f => renderCheckboxGroup([], {}, f),
+        },
+        {
+            key: "admin",
+            label: "管理员？",
+            value: null,
+            render2: f => renderSwitch({}, f),
+        },
+        {
+            key: "birthday",
+            label: "生日",
+            value: null,
+            render2: f => renderDatePicker({showTime: true}, f),
+        },
+        {
+            key: "birthdayT",
+            label: "时间",
+            value: null,
+            render2: f => renderTimePicker({}, f),
         },
     ])
     const useForm = useDyForm([formItems, setFormItems])

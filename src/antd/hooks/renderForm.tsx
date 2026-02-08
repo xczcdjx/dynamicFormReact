@@ -1,13 +1,27 @@
 import React, {type ReactNode} from "react";
-import {Input, Select, type SelectProps, TreeSelect, type TreeSelectProps} from "antd";
+import {
+    Input,
+    Radio,
+    Select,
+    TreeSelect,
+    Checkbox,
+    type CheckboxProps,
+    Switch,
+    type SwitchProps,
+    DatePicker, type DatePickerProps, TimePicker, type TimePickerProps
+} from "antd";
+import type {RadioChangeEvent, TreeSelectProps, SelectProps} from 'antd'
 import type {DyFormItem, SelectOptionItem, TreeSelectOption} from "@/types/form";
-import type {PasswordProps, TextAreaProps, InputProps} from "antd/es/input";
+import type {InputProps, PasswordProps, TextAreaProps} from "antd/es/input";
 import {
     PopSelect,
-    type PopSelectMultipleProps, type PopSelectOptionProps,
+    type PopSelectMultipleProps,
+    type PopSelectOptionProps,
     type PopSelectSingleProps,
     type SelectOption
 } from "@/antd/hooks/PopSelect.tsx";
+import type {RadioGroupProps} from "antd/es/radio/interface";
+import type {CheckboxGroupProps} from "antd/es/checkbox";
 
 function reactNodeToText(node: ReactNode): string {
     if (node == null || node === false || node === true) return "";
@@ -70,6 +84,19 @@ function mergeOptions(arr: TreeSelectOption[], obj: Partial<DyFormItem>, labelFV
             next.children = mergeOptions(it[childF], obj, labelFV)
         }
         return next
+    })
+}
+
+function mergeBoxOptions(arr: SelectOptionItem[], obj: Partial<DyFormItem>, labelFV = 'label') {
+    const {labelField, valueField, options = []} = obj
+    const opts = arr.length ? arr : options
+    const labelF = labelField ?? "label";
+    const valueF = valueField ?? "value";
+    return opts.map((it: any) => {
+        const labelNode = it[labelF];
+        return {
+            [labelFV]: labelNode, value: it[valueF],
+        }
     })
 }
 
@@ -143,7 +170,7 @@ export function renderPopSelect(
 ): React.ReactElement;
 
 export function renderPopSelect(
-    options: Array<SelectOption>=[],
+    options: Array<SelectOption> = [],
     optionProps: PopSelectOptionProps = {},
     rf?: DyFormItem,
     defaultRender?: ReactNode
@@ -155,7 +182,7 @@ export function renderPopSelect(
         rfOnChange?.(val, rf, opt);
     };
     const multiple = mode === 'multiple';
-    const opts=options.length?options:rf?.options
+    const opts = options.length ? options : rf?.options
     // 这里不传 value/onChange！交给 Form.Item 注入
     return (
         <PopSelect
@@ -171,4 +198,85 @@ export function renderPopSelect(
             popoverProps={multiple ? (optionProps as any) : undefined}
         />
     );
+}
+
+export function renderRadioGroup(
+    options: SelectOptionItem[] = [],
+    optionProps: RadioGroupProps = {},
+    rf?: DyFormItem
+) {
+    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const sOptions = mergeBoxOptions(options, resetRf)
+    const handleChange = (e: RadioChangeEvent) => {
+        rf?.onChange?.(e.target.value, rf, sOptions);
+        optionProps?.onChange?.(e);
+    };
+    return <Radio.Group {...restParams} options={sOptions} onChange={handleChange} {...optionProps}/>
+}
+
+export function renderRadioButtonGroup(
+    options: SelectOptionItem[] = [],
+    optionProps: RadioGroupProps = {},
+    rf?: DyFormItem
+) {
+    return renderRadioGroup(options, {optionType: 'button', ...optionProps}, rf);
+}
+
+export function renderCheckboxGroup(
+    options: SelectOptionItem[] = [],
+    optionProps: CheckboxGroupProps = {},
+    rf?: DyFormItem
+) {
+    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const sOptions = mergeBoxOptions(options, resetRf)
+    const handleChange = (arr: any) => {
+        rf?.onChange?.(arr, rf, sOptions);
+        optionProps?.onChange?.(arr);
+    };
+    return <Checkbox.Group {...restParams} options={sOptions} onChange={handleChange} {...optionProps}/>
+}
+
+export function renderSwitch(
+    optionProps: SwitchProps = {},
+    rf?: DyFormItem
+) {
+    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const handleChange = (v: boolean, extra: any) => {
+        rf?.onChange?.(v, rf);
+        optionProps?.onChange?.(v, extra);
+    };
+    return <Switch {...restParams} onChange={handleChange} {...optionProps}/>
+}
+
+export function renderDatePicker(
+    optionProps: DatePickerProps & { isRange?: boolean } = {},
+    rf?: DyFormItem
+) {
+    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const handleChange = (date: any, dateString: string | string[]) => {
+        rf?.onChange?.(dateString, rf);
+        optionProps?.onChange?.(date, dateString);
+    };
+    const {isRange, ...restOptionProps} = optionProps
+    const params = {...restParams, onChange: handleChange, ...restOptionProps}
+    return isRange ? <DatePicker.RangePicker {...params} /> : <DatePicker {...params}/>
+}
+
+export function renderTimePicker(
+    optionProps: TimePickerProps & { isRange?: boolean } = {},
+    rf?: DyFormItem
+) {
+    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const handleChange = (date: any, dateString: string | string[]) => {
+        rf?.onChange?.(dateString, rf);
+        optionProps?.onChange?.(date, dateString);
+    };
+    const {isRange, ...restOptionProps} = optionProps
+    const params = {...restParams, onChange: handleChange, ...restOptionProps}
+    return isRange ? <TimePicker.RangePicker {...params} /> : <TimePicker {...params}/>
 }

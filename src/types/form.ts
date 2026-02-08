@@ -3,8 +3,8 @@ import type {CSSProperties, ReactNode} from "react";
 export interface SelectOptionItem {
     label?: string | ReactNode
     value: any
-    // class?: string;
-    // style?: string | CSSProperties;
+    className?: string;
+    style?: string | CSSProperties;
     disabled?: boolean;
 }
 
