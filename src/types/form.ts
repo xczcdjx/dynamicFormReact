@@ -1,12 +1,19 @@
 import type {CSSProperties, ReactNode} from "react";
 
 export interface SelectOptionItem {
-    label?: string
+    label?: string | ReactNode
     value: any
     // class?: string;
     // style?: string | CSSProperties;
     disabled?: boolean;
 }
+
+export type TreeSelectOption = {
+    label?: string | ReactNode
+    value: any
+    disabled?: boolean
+    children?: TreeSelectOption[]
+} | Record<string, any>
 
 export interface BaseDyFormItem<T = any> {
     key: keyof T
@@ -35,7 +42,9 @@ export interface DyFormItem<K = any, RuleT = any> extends BaseDyFormItem<K> {
     rows?: number
     labelField?: string
     valueField?: string
+    childField?: string
     showSearch?: boolean | object
+    searchOnLabel?: boolean
     showCount?: boolean
     mode?: 'multiple' | 'tags'
     isCustom?: boolean

@@ -1,6 +1,13 @@
 import {useRef, useState} from "react";
 import {Button, Input, Radio} from "antd";
-import {AdDynamicForm, type adDynamicFormRef, renderInput, renderSelect} from "@/antd";
+import {
+    AdDynamicForm,
+    type adDynamicFormRef,
+    renderInput,
+    renderPopSelect,
+    renderSelect,
+    renderTreeSelect
+} from "@/antd";
 import {useDyForm, useReactiveForm} from "@/index";
 import type {Rule} from "antd/es/form";
 
@@ -44,13 +51,60 @@ const AllForm = () => {
             labelField: 'f',
             valueField: 'v',
             showSearch: true,
+            allowClear: true,
+            searchOnLabel: true,
             options: [
-                {f: '男', v: 0},
+                {f: <b>男</b>, v: 0},
                 {f: '女', v: 1}
             ],
             render2: (f) => renderSelect([], {}, f)
         },
-
+        {
+            key: "job",
+            label: "职业",
+            value: null,
+            placeholder: '请选择职业',
+            labelField: 'f',
+            valueField: 'v',
+            showSearch: true,
+            allowClear: true,
+            searchOnLabel: true,
+            childField: 'childOptions',
+            options: [
+                {
+                    f: '前端', v: '1', childOptions: [
+                        {f: '网页开发', v: '1-1'},
+                        {f: '小程序开发', v: '1-2'},
+                    ]
+                },
+                {
+                    f: '后端', v: '2', childOptions: [
+                        {f: '后台开发', v: '2-1'},
+                        {f: '运维', v: '2-2'},
+                    ]
+                }
+            ],
+            render2: (f) => renderTreeSelect([], {
+                treeDefaultExpandAll: true
+            }, f),
+        },
+        {
+            key: "job2",
+            label: "职位2",
+            value: null,
+            labelField: 'l',
+            valueField: 'v',
+            options: ['Drive My Car', 'Norwegian Wood'].map((label, index) => ({
+                l: label,
+                v: label,
+                children: [
+                    {l: 'aaa' + index, v: 'aaa' + index},
+                    {l: 'bbb' + index, v: 'bbb' + index},
+                ]
+            })),
+            mode: 'multiple',
+            render2: f => renderPopSelect([], {}, f),
+        },
     ])
     const useForm = useDyForm([formItems, setFormItems])
     const antdFormRef = useRef<adDynamicFormRef>(null)
