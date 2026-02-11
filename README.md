@@ -267,17 +267,15 @@ export default CustomForm;
 
 ##### 总表单
 
-> 除renderDynamicTags,renderCheckbox,renderSlider,renderInputNumber等待后续更新
-
 ```tsx
 import {useRef, useState} from "react";
 import {Button, Input, Radio} from "antd";
 import {
     AdDynamicForm,
-    type adDynamicFormRef, renderCheckboxGroup, renderDatePicker,
-    renderInput,
+    type adDynamicFormRef, renderCheckbox, renderCheckboxGroup, renderDatePicker, renderDynamicTags,
+    renderInput, renderInputNumber,
     renderPopSelect, renderRadioButtonGroup, renderRadioGroup,
-    renderSelect, renderSwitch, renderTimePicker,
+    renderSelect, renderSlider, renderSwitch, renderTimePicker,
     renderTreeSelect
 } from "dynamicformdjx-react/antd";
 import {useDyForm, useReactiveForm} from "dynamicformdjx-react";
@@ -298,6 +296,10 @@ type RowProps = {
     job: number
     job2: number
     job3: number
+    checkbox: boolean
+    future: string[]
+    slider: number
+    inputNumber: number
 }
 const AllForm = () => {
     const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
@@ -419,6 +421,47 @@ const AllForm = () => {
             label: "时间",
             value: null,
             render2: f => renderTimePicker({}, f),
+        },
+        {
+            key: "future",
+            label: "未来",
+            value: [
+                {label: '你没见过不等于没有', value: 'hello world 1'},
+                {
+                    label: '不要给自己设限',
+                    value: 'hello world 2'
+                },
+                {
+                    label: '不要说连升两级',
+                    value: 'hello world 3'
+                },
+                {
+                    label: '直接升到 CEO 都是有可能的',
+                    value: 'hello world 4'
+                }
+            ],
+            render2: f => renderDynamicTags(f.value, {}, f),
+        },
+        {
+            key: "checkbox",
+            label: "复选",
+            value: true,
+            render2: f => renderCheckbox({}, f),
+            formItemProps: {
+                valuePropName: 'checked',
+            }
+        },
+        {
+            key: "slider",
+            label: "滑块",
+            value: 0,
+            render2: f => renderSlider({}, f),
+        },
+        {
+            key: "inputNumber",
+            label: "数字输入",
+            value: 20,
+            render2: f => renderInputNumber({}, f),
         },
     ])
     const useForm = useDyForm([formItems, setFormItems])
