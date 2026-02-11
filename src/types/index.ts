@@ -28,10 +28,10 @@ export type DyConfig = {
     // ...
 }
 export type DyCasConfig = {
-    showBorder?:boolean
-    retractLen?:number
-    borderColors?:string[]
-    showPad?:boolean
+    showBorder?: boolean
+    retractLen?: number
+    borderColors?: string[]
+    showPad?: boolean
 } & Omit<DyConfig, 'autoScroll'>
 export type DyListConfig = {
     // 分隔符
@@ -51,4 +51,43 @@ export type ExposeDyFType = {
     reset?: (v?: any) => void
     validator: () => Promise<object>
     getResult?: (t?: 'res' | 'ori') => DyFormItem[] | object
+}
+export type RenderType =
+    | "renderInput"
+    | "renderSelect"
+    | "renderPopSelect"
+    | "renderTreeSelect"
+    | "renderRadioGroup"
+    | "renderRadioButtonGroup"
+    | "renderCheckboxGroup"
+    | "renderSwitch"
+    | "renderDatePicker"
+    | "renderTimePicker"
+    | "renderCheckbox"
+    | "renderDynamicTags"
+    | "renderSlider"
+    | "renderInputNumber"
+
+export type DecorateDyFormItem<Row extends Record<string, any>, RuleT = any> =
+    Omit<DyFormItem<Row, RuleT>, "value"> & {
+    value: DyFormItem<Row, RuleT>["value"] | any | null
+    renderType?: RenderType
+    renderProps?: Record<string, any>
+}
+
+export type Renderers<Row extends Record<string, any>, RuleT = any> = {
+    renderInput: (props: any, it: any) => any
+    renderSelect: (options: any[], props: any, it: any) => any
+    renderPopSelect: (options: any[], props: any, it: any) => any
+    renderTreeSelect: (options: any[], props: any, it: any) => any
+    renderRadioGroup: (options: any[], props: any, it: any) => any
+    renderRadioButtonGroup: (options: any[], props: any, it: any) => any
+    renderCheckboxGroup: (options: any[], props: any, it: any) => any
+    renderSwitch: (props: any, it: any) => any
+    renderDatePicker: (props: any, it: any) => any
+    renderTimePicker: (props: any, it: any) => any
+    renderCheckbox: (props: any, it: any) => any
+    renderDynamicTags: (props: any, it: any) => any
+    renderSlider: (props: any, it: any) => any
+    renderInputNumber: (props: any, it: any) => any
 }

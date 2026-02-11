@@ -2,20 +2,20 @@ import {useEffect, useState, useCallback, useMemo, useRef, type Dispatch, type S
 import type {DyFormItem} from "@/types/form";
 
 
-type Options = {
+/*type Options = {
     syncFromRaw?: boolean;
-};
+};*/
 
 export function useReactiveForm<T extends Record<string, any>, U = any>(
     rawItems: DyFormItem<T, U>[],
-    options: Options = {}
+    isReactive: boolean = true
 ) {
     const [items, setItems] = useState<DyFormItem<T, U>[]>(() => rawItems);
 
     useEffect(() => {
-        if (!options.syncFromRaw) return;
+        if (isReactive) return;
         setItems(rawItems);
-    }, [options.syncFromRaw, rawItems]);
+    }, [isReactive, rawItems]);
     return [items, setItems] as const;
 }
 
