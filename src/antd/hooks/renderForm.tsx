@@ -1,11 +1,11 @@
-import React, {type ReactNode} from "react";
+import React, {type ReactNode, useState} from "react";
 import {
     PopSelect,
     type PopSelectMultipleProps,
     type PopSelectOptionProps,
     type PopSelectSingleProps,
     type SelectOption
-} from "@/antd/hooks/PopSelect.tsx";
+} from "./PopSelect";
 import {
     Input,
     Radio,
@@ -13,13 +13,16 @@ import {
     TreeSelect,
     Checkbox,
     Switch,
-    DatePicker, TimePicker
+    DatePicker, TimePicker, type CheckboxProps, Slider, InputNumber, type InputNumberProps
 } from "antd";
 import type {RadioChangeEvent, TreeSelectProps, SelectProps, TimePickerProps, DatePickerProps, SwitchProps} from 'antd'
 import type {DyFormItem, SelectOptionItem, TreeSelectOption} from "@/types/form";
 import type {InputProps, PasswordProps, TextAreaProps} from "antd/es/input";
 import type {RadioGroupProps} from "antd/es/radio/interface";
 import type {CheckboxGroupProps} from "antd/es/checkbox";
+import {OmitValue} from "../../utils/tools";
+import {omitAllCommonKey} from "../../constants";
+import type {SliderProps} from "antd/es/slider";
 
 function reactNodeToText(node: ReactNode): string {
     if (node == null || node === false || node === true) return "";
@@ -240,27 +243,25 @@ export function renderSwitch(
     optionProps: SwitchProps = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
-    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const resetRf = OmitValue(rf!, omitAllCommonKey)
     const handleChange = (v: boolean, extra: any) => {
         rf?.onChange?.(v, rf);
         optionProps?.onChange?.(v, extra);
     };
-    return <Switch {...restParams} onChange={handleChange} {...optionProps}/>
+    return <Switch {...resetRf} onChange={handleChange} {...optionProps}/>
 }
 
 export function renderDatePicker(
     optionProps: DatePickerProps & { isRange?: boolean } = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
-    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const resetRf = OmitValue(rf!, omitAllCommonKey) as any
     const handleChange = (date: any, dateString: string | string[]) => {
         rf?.onChange?.(dateString, rf);
         optionProps?.onChange?.(date, dateString);
     };
     const {isRange, ...restOptionProps} = optionProps
-    const params = {...restParams, onChange: handleChange, ...restOptionProps}
+    const params = {...resetRf, onChange: handleChange, ...restOptionProps}
     return isRange ? <DatePicker.RangePicker {...params} /> : <DatePicker {...params}/>
 }
 
@@ -268,13 +269,75 @@ export function renderTimePicker(
     optionProps: TimePickerProps & { isRange?: boolean } = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
-    const {labelField, valueField, childField, ...restParams} = resetRf as any
+    const resetRf = OmitValue(rf!, omitAllCommonKey) as any
     const handleChange = (date: any, dateString: string | string[]) => {
         rf?.onChange?.(dateString, rf);
         optionProps?.onChange?.(date, dateString);
     };
     const {isRange, ...restOptionProps} = optionProps
-    const params = {...restParams, onChange: handleChange, ...restOptionProps}
+    const params = {...resetRf, onChange: handleChange, ...restOptionProps}
     return isRange ? <TimePicker.RangePicker {...params} /> : <TimePicker {...params}/>
+}
+
+// new
+// checkbox 需要加valuePropName给formItem使之提供value处理
+export function renderCheckbox(
+    optionProps: CheckboxProps = {},
+    rf?: DyFormItem,
+) {
+    const resetRf = OmitValue(rf!, omitAllCommonKey)
+    const handleChange: CheckboxProps['onChange'] = (e) => {
+        const f = e.target.checked
+        rf?.onChange?.(f, rf);
+        optionProps?.onChange?.(e);
+    };
+    return <Checkbox {...resetRf} checked={!!rf?.value} onChange={handleChange} {...optionProps}/>
+}
+
+
+/*export function renderCheckbox(
+    optionProps: CheckboxProps = {},
+    rf?: DyFormItem,
+) {
+    const KEY = "__checked__";
+    const resetRf = OmitValue(rf!, omitAllCommonKey) as any
+    const handleChange = (arr: any) => {
+        const f = Array.isArray(arr) && arr.includes(KEY)
+        rf?.onChange?.(f, rf);
+        optionProps?.onChange?.(arr);
+    };
+    return <Checkbox.Group {...resetRf} value={rf?.value ? [KEY] : []}
+                           options={[{title: "", value: KEY}]} onChange={handleChange} {...optionProps}/>
+}*/
+
+export function renderSlider(
+    optionProps: SliderProps = {},
+    rf?: DyFormItem,
+) {
+    const resetRf = OmitValue(rf!, omitAllCommonKey) as any
+    const handleChange: SliderProps['onChange'] = (e) => {
+        rf?.onChange?.(e, rf);
+        optionProps?.onChange?.(e);
+    };
+    return <Slider {...resetRf} onChange={handleChange} {...optionProps}/>
+}
+
+export function renderInputNumber(
+    optionProps: InputNumberProps = {},
+    rf?: DyFormItem,
+) {
+    const resetRf = OmitValue(rf!, omitAllCommonKey) as any
+    const handleChange: InputNumberProps['onChange'] = (e) => {
+        rf?.onChange?.(e, rf);
+        optionProps?.onChange?.(e);
+    };
+    return <InputNumber {...resetRf} onChange={handleChange} {...optionProps}/>
+}
+
+export function renderDynamicTags(
+    options: SelectOptionItem[] = [],
+    optionProps: SelectProps = {},
+    rf?: DyFormItem,
+) {
+    return renderSelect(options, {mode: 'tags', ...optionProps}, rf);
 }

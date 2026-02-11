@@ -48,6 +48,7 @@ export interface DyFormItem<K = any, RuleT = any> extends BaseDyFormItem<K> {
     showCount?: boolean
     mode?: 'multiple' | 'tags'
     isCustom?: boolean
+    formItemProps?: Record<string, any>
 }
 
 export type PageModal = {
@@ -80,5 +81,4 @@ export type ZealColumn<T extends Record<string, any>> = {
     resizable?: boolean;
     render2?: (row: T, $index: number) => ReactNode;
     slot?: string;
-    formItemProps?: Record<string, any>
 };
