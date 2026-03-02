@@ -38,7 +38,7 @@ const DecorateForm = () => {
             key: "birthday",
             label: "生日",
             value: null,
-            render2: f => renderDatePicker({type: 'datetime', showTime: true, format: DATETIME_FORMAT}, f),
+            render2: f => renderDatePicker({type: 'datetime', showTime: true}, f),
             formItemProps: {
                 ...datePickerFormat({formatStr: DATETIME_FORMAT})
             }
