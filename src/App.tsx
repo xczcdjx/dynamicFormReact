@@ -7,11 +7,11 @@ import {ConfigProvider, theme} from "antd";
 function App() {
     return (
         <>
-        {/*<ConfigProvider theme={{algorithm: theme.darkAlgorithm}}>*/}
+            {/*<ConfigProvider theme={{algorithm: theme.darkAlgorithm}}>*/}
             {/*<SingleInput/>*/}
             {/*<CascadeInput/>*/}
             <AntdIndex/>
-        {/*</ConfigProvider>*/}
+            {/*</ConfigProvider>*/}
         </>
     )
 }

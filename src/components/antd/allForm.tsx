@@ -6,9 +6,9 @@ import {
     renderInput, renderInputNumber,
     renderPopSelect, renderRadioButtonGroup, renderRadioGroup,
     renderSelect, renderSlider, renderSwitch, renderTimePicker,
-    renderTreeSelect
-} from "@/antd";
-import {useDyForm, useReactiveForm} from "@/index";
+    renderTreeSelect, datePickerFormat
+} from "../../../dist/antd";
+import {TIME_FORMAT, useDyForm, useReactiveForm} from "../../../dist";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {
@@ -20,7 +20,7 @@ type RowProps = {
     birthday: string
     desc: string
     sex: number
-    birthdayT: number
+    birthdayT: string
     admin: number
     favorite: number[]
     job: number
@@ -145,13 +145,19 @@ const AllForm = () => {
             label: "生日",
             value: null,
             placeholder: 'select birth',
-            render2: f => renderDatePicker({showTime: true}),
+            render2: f => renderDatePicker({showTime: true}, f),
+            formItemProps: {
+                ...datePickerFormat({})
+            }
         },
         {
             key: "birthdayT",
             label: "时间",
             value: null,
             render2: f => renderTimePicker({}, f),
+            formItemProps: {
+                ...datePickerFormat({formatStr: TIME_FORMAT})
+            }
         },
         {
             key: "future",
@@ -215,7 +221,9 @@ const AllForm = () => {
                 <Button color={'orange'} variant={'outlined'} onClick={() => {
                     useForm.setValues({
                         username: 'antd',
-                        password: 'I love you'
+                        password: 'I love you',
+                        birthday: '2026-02-11',
+                        birthdayT: '00:00:00'
                     })
                 }}>setData</Button>
                 <Button color={'blue'} variant={'outlined'} onClick={() => {

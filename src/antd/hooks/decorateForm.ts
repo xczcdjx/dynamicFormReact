@@ -1,6 +1,5 @@
 import * as renderers from "./renderForm"
 import type {DecorateDyFormItem, Renderers, RenderType} from "@/types";
-import type {DyFormItem} from "@/types/form";
 import {useEffect, useState} from "react";
 import {OmitValue} from "@/utils/tools.ts";
 
@@ -58,7 +57,7 @@ export function createUseDecorateForm(renderers: Renderers<any, any>) {
             } else {
                 const key = (raw.renderType ?? "renderInput") as RenderType
                 const fn = map[key]
-                if (fn) it.render2 = () => fn(OmitValue(it, ['renderType', 'renderProps']) as any)
+                if (fn) it.render2 = () => fn(OmitValue(it, ['renderType', 'key', 'render2']) as any)
                 else {
                     console.warn(`[useDecorateForm] unknown renderType: ${raw.renderType}`)
                     it.render2 = () => map.renderInput(it)

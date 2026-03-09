@@ -6,7 +6,7 @@
 
 [Vue3 版本](https://www.npmjs.com/package/dynamicformdjx)
 
-[Vue2 版本](https://www.npmjs.com/package/dynamicformdjx-vue2) (后续适配)
+[Vue2 版本](https://www.npmjs.com/package/dynamicformdjx-vue2)
 
 ## 概述
 
