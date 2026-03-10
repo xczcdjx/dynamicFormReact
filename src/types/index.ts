@@ -1,4 +1,5 @@
 import type {DyFormItem} from "@/types/form.ts";
+import type {ReactNode} from "react";
 
 export type DyCFormItem = {
     rId: string;
@@ -38,6 +39,37 @@ export type DyListConfig = {
     arraySplitSymbol: string
     // ...
 }
+export type ScopeType = {
+    row: {
+        rId: string
+        key: string
+        value: string
+        isArray?: boolean | undefined
+        isNumber?: boolean | undefined
+    }
+    index: number
+    isLast: boolean
+    addItem: () => void
+    removeItem: () => void
+    toggleArray: () => void
+    toggleNumber: () => void
+}
+export type CasScopeType = ScopeType & { addChild: () => void }
+
+export interface DynamicInputSlots {
+    newBtn?: ({newItem}: { newItem: () => void }) => ReactNode
+    resetBtn?: ({reset}: { reset: () => void }) => ReactNode
+    mergeBtn?: ({merge}: { merge: () => void }) => ReactNode
+    typeTools?: (row: ScopeType) => ReactNode
+    rowActions?: (row: ScopeType) => ReactNode
+}
+
+export interface DynamicCasInputSlots extends Omit<DynamicInputSlots, 'rowActions' | 'typeTools'> {
+    typeTools?: (row: CasScopeType) => ReactNode[]
+    rowActions?: (row: CasScopeType) => ReactNode[]
+    newChild?: (row: CasScopeType) => ReactNode[]
+}
+
 export type ValueType = Record<string, any>
 // 内部新建键值对id
 export type DyRandomFun = (id?: number | string) => string

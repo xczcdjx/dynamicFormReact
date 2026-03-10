@@ -7,11 +7,11 @@ import type {
     DyBtnConfig,
     DyListConfig,
     DyConfig,
-    DyCFormItem
+    DyCFormItem, DynamicInputSlots
 } from "@/types";
 import {formatNumberInput, resetObj, tranArr, clsx} from "@/utils/tools";
 
-type DynamicInputProps = {
+interface DynamicInputProps extends DynamicInputSlots {
     size?: FSize
     value: ValueType,
     isController?: boolean,
@@ -24,6 +24,7 @@ type DynamicInputProps = {
     configs?: DyConfig,
     dyListConfigs?: DyListConfig,
 }
+
 const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
     // props
     const {
@@ -62,6 +63,20 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
     // const renderM=renderData.current
     // node
     const dyFormListRef = useRef<HTMLDivElement | null>(null)
+    // function
+    const newItem = () => setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
+    const reset = () => {
+        setRenderM(tranArr(value, randomFun, ml.arraySplitSymbol))
+        onReset?.()
+    }
+    const merge = () => {
+        const temp = [...renderM]
+        temp.sort((a, b) => +a.rId - +b.rId)
+        const obj = resetObj(renderM, ml.arraySplitSymbol)
+        onChange(obj)
+        onMerge?.(obj, renderM)
+        setRenderM(tranArr(obj, randomFun, ml.arraySplitSymbol))
+    }
     // expose
     useImperativeHandle(ref, () => ({
         getResult(t: "res" | "ori"): DyCFormItem[] | object {
@@ -79,127 +94,128 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
         <div className={`dynamicInput ${size} ${dyCls}`}>
             <div className={`dyFormList ${!renderM.length ? 'noList' : ''}`} ref={dyFormListRef}
                  style={{maxHeight: mc.maxHeight}}>
-                {renderM.map((r, i, arr) => <div className="dItem" key={r.rId}>
-                    <div className="input">
-                        <input value={r.key} className="key nativeInput" onInput={v => {
-                            const key = (v.target as HTMLInputElement).value
-                            setRenderM(p => {
-                                const next = [...p]
-                                const old = next[i]
-                                next[i] = {...old, key}
-                                return next
-                            })
-                        }}/>:
-                        <div className="vInput">
-                            <div className="slot">
-                                <button
-                                    className={clsx([
-                                        r.isArray ? "success" : "default",
-                                        "small",
-                                        "bt"
-                                    ])}
-                                    onClick={() => {
-                                        setRenderM(p => {
-                                            const next = [...p]
-                                            const old = next[i]
-                                            next[i] = {...old, isArray: !old.isArray}
-                                            return next
-                                        })
-                                    }}
-                                >
-                                    Array
-                                </button>
-                                &nbsp;
-                                <button
-                                    className={clsx([
-                                        r.isNumber ? "success" : "default",
-                                        "small",
-                                        "bt"
-                                    ])}
-                                    onClick={() => {
-                                        setRenderM(p => {
-                                            const next = [...p]
-                                            const old = next[i]
-                                            next[i] = {...old, isNumber: !old.isNumber}
-                                            return next
-                                        })
-                                    }}
-                                >
-                                    Number
-                                </button>
-                            </div>
-                            <input value={r.value} className='value nativeV' onInput={v => {
-                                const vv = (v.target as HTMLInputElement).value
-                                let newV = vv
-                                if (r.isNumber && mc.allowFilter) {
-                                    newV = formatNumberInput(
-                                        vv,
-                                        r.isArray,
-                                        ml.arraySplitSymbol
-                                    )
-                                }
+                {renderM.map((r, i, arr) => {
+                    const scope = {
+                        row: r,
+                        index: i,
+                        isLast: i === arr.length - 1,
+                        addItem: () => {
+                            setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
+                            if (mc.autoScroll) {
+                                setTimeout(() => {
+                                    const el = dyFormListRef.current
+                                    el?.scrollTo({top: el?.scrollHeight + 20, behavior: 'smooth'})
+                                })
+                            }
+                        },
+                        removeItem: () => setRenderM(p => p.filter(it => it.rId !== r.rId)),
+                        toggleArray: () => setRenderM(p => {
+                            const next = [...p]
+                            const old = next[i]
+                            next[i] = {...old, isArray: !old.isArray}
+                            return next
+                        })
+                        ,
+                        toggleNumber: () => setRenderM(p => {
+                            const next = [...p]
+                            const old = next[i]
+                            next[i] = {...old, isNumber: !old.isNumber}
+                            return next
+                        })
+                        ,
+                    };
+                    return <div className="dItem" key={r.rId}>
+                        <div className="input">
+                            <input value={r.key} className="key nativeInput" onInput={v => {
+                                const key = (v.target as HTMLInputElement).value
                                 setRenderM(p => {
                                     const next = [...p]
                                     const old = next[i]
-                                    next[i] = {...old, value: newV}
+                                    next[i] = {...old, key}
                                     return next
                                 })
-                            }}/>
+                            }}/>:
+                            <div className="vInput">
+                                <div className="slot">
+                                    {props.typeTools
+                                        ? props.typeTools(scope)
+                                        : (
+                                            <>
+                                                <button
+                                                    className={clsx([
+                                                        r.isArray ? "success" : "default",
+                                                        "small",
+                                                        "bt"
+                                                    ])}
+                                                    onClick={scope.toggleArray}
+                                                >
+                                                    Array
+                                                </button>
+                                                <button
+                                                    className={clsx([
+                                                        r.isNumber ? "success" : "default",
+                                                        "small",
+                                                        "bt"
+                                                    ])}
+                                                    onClick={scope.toggleNumber}
+                                                >
+                                                    Number
+                                                </button>
+                                            </>)}
+                                </div>
+                                <input value={r.value} className='value nativeV' onInput={v => {
+                                    const vv = (v.target as HTMLInputElement).value
+                                    let newV = vv
+                                    if (r.isNumber && mc.allowFilter) {
+                                        newV = formatNumberInput(
+                                            vv,
+                                            r.isArray,
+                                            ml.arraySplitSymbol
+                                        )
+                                    }
+                                    setRenderM(p => {
+                                        const next = [...p]
+                                        const old = next[i]
+                                        next[i] = {...old, value: newV}
+                                        return next
+                                    })
+                                }}/>
+                            </div>
+                        </div>
+                        <div className="btn">
+                            {props.rowActions ? props.rowActions(scope) : <>
+                                <button className={clsx([size, 'success', 'bt'])} disabled={i !== arr.length - 1}
+                                        onClick={scope.addItem}>+
+                                </button>
+                                <button className={clsx([
+                                    "danger",
+                                    size
+                                    , 'bt'
+                                ])} onClick={scope.removeItem}>-
+                                </button>
+                            </>}
                         </div>
                     </div>
-                    <div className="btn">
-                        <button className={clsx([size, 'success', 'bt'])} disabled={i !== arr.length - 1}
-                                onClick={() => {
-                                    setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
-                                    if (mc.autoScroll) {
-                                        setTimeout(() => {
-                                            const el = dyFormListRef.current
-                                            el?.scrollTo({top: el?.scrollHeight + 20, behavior: 'smooth'})
-                                        })
-                                    }
-                                }}>+
-                        </button>
-                        <button className={clsx([
-                            "danger",
-                            size
-                            , 'bt'
-                        ])} onClick={() => {
-                            setRenderM(p => p.filter(it => it.rId !== r.rId))
-                        }}>-
-                        </button>
-                    </div>
-                </div>)}
+                })}
             </div>
             {
                 <div className={`control ${!renderM.length ? 'noList' : ''}`}>
                     {
-                        !renderM.length && <button className={clsx([
+                        !renderM.length && (props.newBtn ? props.newBtn({newItem}) : (<button className={clsx([
                             "success",
                             size, 'bt'
-                        ])} onClick={() => {
-                            setRenderM(p => [...p, {rId: randomFun(), key: '', value: ''}])
-                        }}>{mb.newTxt}</button>
+                        ])} onClick={newItem}>{mb.newTxt}</button>))
                     }
                     {
                         !isController && <>
-                            {!mc.hideReset && <button className={clsx([
+                            {!mc.hideReset && (props.resetBtn ? props.resetBtn({reset}) : <button className={clsx([
                                 "default",
                                 size, 'bt'
-                            ])} onClick={() => {
-                                setRenderM(tranArr(value, randomFun, ml.arraySplitSymbol))
-                                onReset?.()
-                            }}>{mb.resetTxt}</button>}
-                            <button className={clsx([
+                            ])} onClick={reset}>{mb.resetTxt}</button>)}
+                            {props.mergeBtn ? props.mergeBtn({merge}) : <button className={clsx([
                                 "info",
                                 size, 'bt'
-                            ])} onClick={() => {
-                                const temp = [...renderM]
-                                temp.sort((a, b) => +a.rId - +b.rId)
-                                const obj = resetObj(renderM, ml.arraySplitSymbol)
-                                onChange(obj)
-                                onMerge?.(obj, renderM)
-                                setRenderM(tranArr(obj, randomFun, ml.arraySplitSymbol))
-                            }}>{mb.mergeTxt}</button>
+                            ])} onClick={merge}>{mb.mergeTxt}</button>}
                         </>
                     }
                 </div>

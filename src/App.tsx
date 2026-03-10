@@ -8,9 +8,9 @@ function App() {
     return (
         <>
             {/*<ConfigProvider theme={{algorithm: theme.darkAlgorithm}}>*/}
-            {/*<SingleInput/>*/}
+            <SingleInput/>
             {/*<CascadeInput/>*/}
-            <AntdIndex/>
+            {/*<AntdIndex/>*/}
             {/*</ConfigProvider>*/}
         </>
     )
