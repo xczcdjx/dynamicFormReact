@@ -16,6 +16,12 @@
 - 提供render2函数渲染表单项，使用函数渲染值或自定义Component函数
 - 提供多种hooks函数，快速处理数据值
 
+`DynamicInput` 组件是一个灵活且动态的表单输入组件，允许用户添加、修改和删除键值对。它提供了多种自定义选项，如按钮文本、表单布局和输入过滤
+
+- 支持通过 `v-model` 双向绑定任意对象，(包含受控和非受控) 可动态增删字段
+- 支持将值解析为：字符串 / 数字 / 数组（字符串数组、数字数组）
+- 文案、样式、数组分隔符等均可配置
+
 ## 安装
 
 ```bash
@@ -266,6 +272,7 @@ export default CustomForm;
 ```
 
 ##### 装饰表单
+
 ```tsx
 import {DATETIME_FORMAT, TIME_FORMAT, useDyForm} from "dynamicformdjx-react";
 import type {Rule} from "antd/es/form";
