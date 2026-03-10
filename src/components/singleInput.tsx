@@ -22,7 +22,7 @@ function App() {
     return (<div>
         <DynamicInput ref={dynamicInputRef} value={obj} onChange={(e) => setObj(e)}
                       isController
-                      newBtn={({newItem}) => <button onClick={newItem}>新</button>}
+                      /*newBtn={({newItem}) => <button onClick={newItem}>新</button>}
                       resetBtn={({reset}) => <button onClick={reset}>重</button>}
                       mergeBtn={({merge}) => <button onClick={merge}>合</button>}
                       typeTools={({toggleArray, toggleNumber, row}) => <>
@@ -34,7 +34,7 @@ function App() {
                       rowActions={({isLast, addItem, removeItem}) => <>
                           <button onClick={addItem} disabled={!isLast}>+</button>
                           <button onClick={removeItem} disabled={!isLast}>-</button>
-                      </>}
+                      </>}*/
         />
         <pre>
             {JSON.stringify(obj, null, 2)}

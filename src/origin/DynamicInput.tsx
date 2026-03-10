@@ -184,7 +184,7 @@ const DynamicInput = forwardRef<ExposeType, DynamicInputProps>((props, ref) => {
                         </div>
                         <div className="btn">
                             {props.rowActions ? props.rowActions(scope) : <>
-                                <button className={clsx([size, 'success', 'bt'])} disabled={i !== arr.length - 1}
+                                <button className={clsx([size, 'success', 'bt'])} disabled={!scope.isLast}
                                         onClick={scope.addItem}>+
                                 </button>
                                 <button className={clsx([

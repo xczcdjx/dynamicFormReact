@@ -65,9 +65,9 @@ export interface DynamicInputSlots {
 }
 
 export interface DynamicCasInputSlots extends Omit<DynamicInputSlots, 'rowActions' | 'typeTools'> {
-    typeTools?: (row: CasScopeType) => ReactNode[]
-    rowActions?: (row: CasScopeType) => ReactNode[]
-    newChild?: (row: CasScopeType) => ReactNode[]
+    typeTools?: (row: CasScopeType) => ReactNode
+    rowActions?: (row: CasScopeType) => ReactNode
+    newChild?: (row: CasScopeType) => ReactNode
 }
 
 export type ValueType = Record<string, any>

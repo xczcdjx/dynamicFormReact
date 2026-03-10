@@ -9,7 +9,7 @@ function App() {
         <>
             {/*<ConfigProvider theme={{algorithm: theme.darkAlgorithm}}>*/}
             <SingleInput/>
-            {/*<CascadeInput/>*/}
+            <CascadeInput/>
             {/*<AntdIndex/>*/}
             {/*</ConfigProvider>*/}
         </>

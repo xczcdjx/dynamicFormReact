@@ -6,11 +6,11 @@ import type {
     DyListConfig,
     DyCasConfig,
     DyCasFormItem,
-    ExposeType,
+    ExposeType, DynamicCasInputSlots, CasScopeType,
 } from "@/types";
 import {formatNumberInput, parseValue, saferRepairColor, updateArrayAtPath, clsx} from "@/utils/tools";
 
-type DynamicCascadeInputProps = {
+interface DynamicCascadeInputProps extends DynamicCasInputSlots {
     depth?: number;
     value: ValueType,
     isController?: boolean,
@@ -24,6 +24,7 @@ type DynamicCascadeInputProps = {
     configs?: DyCasConfig,
     dyListConfigs?: DyListConfig,
 }
+
 const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((props, ref) => {
     // props
     const {
@@ -119,6 +120,77 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                     const path = [...pathPrefix, i]; // current depth len
                     const isChildren = Array.isArray(r.value)
                     const isAllow = allowType(typeof r.value)
+                    const scope = {
+                        row: r,
+                        index: i,
+                        isLast: i === arr.length - 1,
+                        addItem: () => setRenderM((prev) =>
+                            updateArrayAtPath(prev, path, (arr, idx) => {
+                                const next = [...arr];
+                                next.splice(idx + 1, 0, {
+                                    rId: randomFun(),
+                                    key: "",
+                                    value: "",
+                                });
+                                return next;
+                            })),
+                        addChild: () => setRenderM((prev) =>
+                            updateArrayAtPath(prev, path, (arr, idx) => {
+                                const next = [...arr];
+                                const old = next[idx];
+
+                                const children = Array.isArray(old.value)
+                                    ? (old.value as DyCasFormItem[])
+                                    : [];
+
+                                const newChildren = [
+                                    ...children,
+                                    {rId: randomFun(), key: "", value: ""},
+                                ];
+
+                                next[idx] = {
+                                    ...old,
+                                    isArray: undefined,
+                                    isNumber: undefined,
+                                    value: newChildren,
+                                };
+
+                                return next;
+                            })
+                        )
+                        ,
+                        removeItem: () => {
+                            setRenderM((prev) =>
+                                updateArrayAtPath(prev, path, (arr, idx) => {
+                                    const next = [...arr];
+                                    next.splice(idx, 1);
+                                    return next;
+                                })
+                            );
+                        },
+                        toggleArray: () => setRenderM((prev) =>
+                            updateArrayAtPath(prev, path, (arr, idx) => {
+                                const next = [...arr];
+                                const old = next[idx];
+                                next[idx] = {
+                                    ...old,
+                                    isArray: !old.isArray,
+                                };
+                                return next;
+                            })
+                        ),
+                        toggleNumber: () => setRenderM((prev) =>
+                            updateArrayAtPath(prev, path, (arr, idx) => {
+                                const next = [...arr];
+                                const old = next[idx];
+                                next[idx] = {
+                                    ...old,
+                                    isNumber: !old.isNumber,
+                                };
+                                return next;
+                            })
+                        ),
+                    };
                     return <div className="dItem" key={r.rId}
                                 style={{marginLeft: depthC > 1 ? `${depthC * mc.retractLen!}px` : '0'}}>
                         <div className="input">
@@ -141,53 +213,29 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                             }
                             <div className="vInput">
                                 <div className="slot">
-                                    {Array.isArray(r.value) ? undefined : <>
-                                        <button
-                                            className={clsx([
-                                                r.isArray ? "success" : "default",
-                                                "small",
-                                                "bt"
-                                            ])}
-                                            onClick={() => {
-                                                setRenderM((prev) =>
-                                                    updateArrayAtPath(prev, path, (arr, idx) => {
-                                                        const next = [...arr];
-                                                        const old = next[idx];
-                                                        next[idx] = {
-                                                            ...old,
-                                                            isArray: !old.isArray,
-                                                        };
-                                                        return next;
-                                                    })
-                                                );
-                                            }}
-                                        >
-                                            Array
-                                        </button>
-                                        &nbsp;
-                                        <button
-                                            className={clsx([
-                                                r.isNumber ? "success" : "default",
-                                                "small",
-                                                "bt"
-                                            ])}
-                                            onClick={() => {
-                                                setRenderM((prev) =>
-                                                    updateArrayAtPath(prev, path, (arr, idx) => {
-                                                        const next = [...arr];
-                                                        const old = next[idx];
-                                                        next[idx] = {
-                                                            ...old,
-                                                            isNumber: !old.isNumber,
-                                                        };
-                                                        return next;
-                                                    })
-                                                );
-                                            }}
-                                        >
-                                            Number
-                                        </button>
-                                    </>}
+                                    {Array.isArray(r.value) ? undefined : (props.typeTools
+                                        ? props.typeTools(scope as CasScopeType) : <>
+                                            <button
+                                                className={clsx([
+                                                    r.isArray ? "success" : "default",
+                                                    "small",
+                                                    "bt"
+                                                ])}
+                                                onClick={scope.toggleArray}
+                                            >
+                                                Array
+                                            </button>
+                                            <button
+                                                className={clsx([
+                                                    r.isNumber ? "success" : "default",
+                                                    "small",
+                                                    "bt"
+                                                ])}
+                                                onClick={scope.toggleNumber}
+                                            >
+                                                Number
+                                            </button>
+                                        </>)}
                                 </div>
                                 <input
                                     className={`value nativeV ${isChildren ? 'isKey' : ''}`}
@@ -226,82 +274,41 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
                                 <div className="surSlot">
                                     {
                                         depthC < depth ? (
-                                            !isChildren && <button
-                                                className={clsx([
-                                                    "success",
-                                                    "bt"
-                                                ])}
-                                                onClick={() => {
-                                                    setRenderM((prev) =>
-                                                        updateArrayAtPath(prev, path, (arr, idx) => {
-                                                            const next = [...arr];
-                                                            const old = next[idx];
-
-                                                            const children = Array.isArray(old.value)
-                                                                ? (old.value as DyCasFormItem[])
-                                                                : [];
-
-                                                            const newChildren = [
-                                                                ...children,
-                                                                {rId: randomFun(), key: "", value: ""},
-                                                            ];
-
-                                                            next[idx] = {
-                                                                ...old,
-                                                                isArray: undefined,
-                                                                isNumber: undefined,
-                                                                value: newChildren,
-                                                            };
-
-                                                            return next;
-                                                        })
-                                                    );
-                                                }}
-                                            >
-                                                {newChildTxt(r)}
-                                            </button>
+                                            !isChildren &&
+                                            (props.newChild ? props.newChild(scope as CasScopeType) :
+                                                <button
+                                                    className={clsx([
+                                                        "success",
+                                                        "bt"
+                                                    ])}
+                                                    onClick={scope.addChild}
+                                                >
+                                                    {newChildTxt(r)}
+                                                </button>)
                                         ) : null
                                     }
                                 </div>
                             </div>
                         </div>
                         <div className="btn">
-                            <button
-                                className={clsx(['success', 'bt'])}
-                                disabled={i !== arr.length - 1}
-                                onClick={() => {
-                                    setRenderM((prev) =>
-                                        updateArrayAtPath(prev, path, (arr, idx) => {
-                                            const next = [...arr];
-                                            next.splice(idx + 1, 0, {
-                                                rId: randomFun(),
-                                                key: "",
-                                                value: "",
-                                            });
-                                            return next;
-                                        }))
-                                }}
-                            >
-                                +
-                            </button>
-                            <button
-                                className={clsx([
-                                    "danger",
-                                    'bt'
-                                ])}
-                                onClick={() => {
-
-                                    setRenderM((prev) =>
-                                        updateArrayAtPath(prev, path, (arr, idx) => {
-                                            const next = [...arr];
-                                            next.splice(idx, 1);
-                                            return next;
-                                        })
-                                    );
-                                }}
-                            >
-                                -
-                            </button>
+                            {props.rowActions ? props.rowActions(scope as CasScopeType) : <>
+                                <button
+                                    className={clsx(['success', 'bt'])}
+                                    disabled={!scope.isLast}
+                                    onClick={scope.addItem}
+                                >
+                                    +
+                                </button>
+                                <button
+                                    className={clsx([
+                                        "danger",
+                                        'bt'
+                                    ])}
+                                    onClick={scope.removeItem}
+                                >
+                                    -
+                                </button>
+                            </>}
                         </div>
                         {Array.isArray(r.value) && renderFormItems(r.value, depthC + 1, path)}
                     </div>
@@ -309,6 +316,18 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
             }
         </div>
     };
+    // function
+    const newItem = () => setRenderM(p => [...p, {rId: randomFun(), key: "", value: ""}])
+    const reset = () => {
+        setRenderM(tranMulObj(value))
+        onReset?.()
+    }
+    const merge = () => {
+        const obj = resetMulObj(renderM);
+        onChange(obj)
+        onMerge?.(obj, renderM)
+        setRenderM(tranMulObj(obj))
+    }
     useEffect(() => {
         if (isController) {
             onChange(resetMulObj(renderM))
@@ -319,43 +338,34 @@ const DynamicCascadeInput = forwardRef<ExposeType, DynamicCascadeInputProps>((pr
              style={{maxHeight: mc.maxHeight}}>{renderFormItems(renderM)}</div>
         <div className={`control ${!renderM.length ? 'noObj' : ''}`}>
             {!renderM.length && (
-                <button
-                    className={clsx([
-                        "success", 'bt'
-                    ])}
-                    onClick={() => {
-                        setRenderM(p => [...p, {rId: randomFun(), key: "", value: ""}])
-                    }}
-                >
-                    {mb.newTxt}
-                </button>
+                props.newBtn ? props.newBtn({newItem}) : (
+                    <button
+                        className={clsx([
+                            "success", 'bt'
+                        ])}
+                        onClick={newItem}
+                    >
+                        {mb.newTxt}
+                    </button>)
             )}
             {
                 !isController && <>
-                    {!mc.hideReset && <button
+                    {!mc.hideReset && (props.resetBtn ? props.resetBtn({reset}) : <button
                         className={clsx([
                             "default", 'bt'
                         ])}
-                        onClick={() => {
-                            setRenderM(tranMulObj(value))
-                            onReset?.()
-                        }}
+                        onClick={reset}
                     >
                         {mb.resetTxt}
-                    </button>}
-                    <button
+                    </button>)}
+                    {props.mergeBtn ? props.mergeBtn({merge}) : <button
                         className={clsx([
                             "info", 'bt'
                         ])}
-                        onClick={() => {
-                            const obj = resetMulObj(renderM);
-                            onChange(obj)
-                            onMerge?.(obj, renderM)
-                            setRenderM(tranMulObj(obj))
-                        }}
+                        onClick={merge}
                     >
                         {mb.mergeTxt}
-                    </button>
+                    </button>}
                 </>
             }
         </div>
