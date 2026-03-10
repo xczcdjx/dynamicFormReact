@@ -8,7 +8,6 @@ import {
 import {useRef} from "react";
 import {Button} from "antd";
 import {DATETIME_FORMAT, TIME_FORMAT} from "@/constants";
-import {renderCheckbox, renderDynamicTags, renderInputNumber, renderSlider} from "../../../dist/antd";
 
 type FormRow = {
     password: string
