@@ -537,7 +537,8 @@ const AllForm = () => {
         {
             key: "future",
             label: "未来",
-            value: [
+            value: Array.from({length:4}).map((_,i)=>`hello world ${i+1}`),
+            options: [
                 {label: '你没见过不等于没有', value: 'hello world 1'},
                 {
                     label: '不要给自己设限',
@@ -552,7 +553,7 @@ const AllForm = () => {
                     value: 'hello world 4'
                 }
             ],
-            render2: f => renderDynamicTags(f.value, {}, f),
+            render2: f => renderDynamicTags([], {}, f),
         },
         {
             key: "checkbox",
