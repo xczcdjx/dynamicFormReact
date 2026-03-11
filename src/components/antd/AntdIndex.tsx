@@ -8,8 +8,8 @@ const AntdIndex = () => {
         <>
             {/*<SimpleForm/>*/}
             {/*<CustomForm/>*/}
-            {/*<AllForm/>*/}
-            <DecorateForm/>
+            <AllForm/>
+            {/*<DecorateForm/>*/}
         </>
     );
 };
