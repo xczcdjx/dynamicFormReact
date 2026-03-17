@@ -1,5 +1,6 @@
 import AdDynamicForm from "./AdDynamicForm";
 import AdPopupModal from "./AdPopupModal";
+import AdZealCard from "./AdZealCard";
 import {useDecorateForm} from './hooks/decorateForm'
 import type {ExposeDyFType} from "@/types";
 
@@ -15,5 +16,6 @@ export type {
 export {
     AdDynamicForm,
     AdPopupModal,
+    AdZealCard,
     useDecorateForm
 }

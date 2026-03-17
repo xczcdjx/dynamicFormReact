@@ -139,6 +139,21 @@ function OmitValue<
 
     return res
 }
+function Debounce<T extends (...args: any[]) => void>(func: T, delay: number=500): (...args: Parameters<T>) => void {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    return function (...args: Parameters<T>) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
+}
+const getPadY = (el: HTMLElement | null) => {
+    if (!el) return 0;
+    const s = getComputedStyle(el);
+    return (parseFloat(s.paddingTop) || 0) + (parseFloat(s.paddingBottom) || 0);
+};
 export {
     tranArr,
     resetObj,
@@ -148,5 +163,7 @@ export {
     saferRepairColor,
     updateArrayAtPath,
     clsx,
-    OmitValue
+    OmitValue,
+    Debounce,
+    getPadY
 }
