@@ -1,6 +1,7 @@
 import AdDynamicForm from "./AdDynamicForm";
 import AdPopupModal from "./AdPopupModal";
 import AdZealCard from "./AdZealCard";
+import {AdZealTableSearch,AdZealTablePaginationControl} from "./AdZealTableTool";
 import {useDecorateForm} from './hooks/decorateForm'
 import type {ExposeDyFType} from "@/types";
 
@@ -17,5 +18,7 @@ export {
     AdDynamicForm,
     AdPopupModal,
     AdZealCard,
+    AdZealTableSearch,
+    AdZealTablePaginationControl,
     useDecorateForm
 }

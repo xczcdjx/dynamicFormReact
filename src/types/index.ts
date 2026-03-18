@@ -1,5 +1,5 @@
 import type {DyFormItem} from "@/types/form.ts";
-import type {ReactNode} from "react";
+import type {Dispatch, ReactNode, SetStateAction} from "react";
 
 export type DyCFormItem = {
     rId: string;
@@ -78,6 +78,11 @@ export type ExposeType = {
     getResult?: (t: 'res' | 'ori') => DyCFormItem[] | object
 }
 // form
+export type KeyOf<T> = Extract<keyof T, string>;
+export type ItemsState<Row extends Record<string, any>, RuleT = any> = readonly [
+    DyFormItem<Row, RuleT>[],
+    Dispatch<SetStateAction<DyFormItem<Row, RuleT>[]>>
+];
 export type PresetType = "fullRow" | "grid";
 export type ExposeDyFType = {
     reset?: (v?: any) => void

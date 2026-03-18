@@ -1,5 +1,6 @@
 import {useEffect, useState, useCallback, useMemo, useRef, type Dispatch, type SetStateAction} from "react";
 import type {DyFormItem} from "@/types/form";
+import type {ItemsState, KeyOf} from "@/types";
 
 
 /*type Options = {
@@ -18,13 +19,6 @@ export function useReactiveForm<T extends Record<string, any>, U = any>(
     }, [isReactive, rawItems]);
     return [items, setItems] as const;
 }
-
-
-type KeyOf<T> = Extract<keyof T, string>;
-type ItemsState<Row extends Record<string, any>, RuleT = any> = readonly [
-    DyFormItem<Row, RuleT>[],
-    Dispatch<SetStateAction<DyFormItem<Row, RuleT>[]>>
-];
 
 export function useDyForm<Row extends Record<string, any>, RuleT = any>(
     itemsState: ItemsState<Row, RuleT>

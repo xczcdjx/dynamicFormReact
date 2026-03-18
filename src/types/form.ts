@@ -61,9 +61,8 @@ export type ZealPagination = {
     pageCount?: number
     pageSizes: number[]
     pageSlot?: number
-    onChange: () => void
-    onPageSizeChange: () => void
-    setTotalSize: (totalSize: number) => void
+    onChange: (pageNo: number, pageSize: number) => void;
+    onPageSizeChange: (pageSize?: number) => void;
     layout?: string
 } & PageModal
 

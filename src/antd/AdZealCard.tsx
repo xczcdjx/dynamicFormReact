@@ -131,6 +131,9 @@ export default function AntZealCard(props: AntZealCardProps) {
                 actions={footer ? [footer(slotArgs)] : undefined}
                 style={{height: "100%"}}
                 styles={{
+                    header: {
+                        padding:'10px'
+                    },
                     body: {
                         padding: '1px',
                         height: tableHeight + 'px',
