@@ -6,7 +6,7 @@ import path from "node:path";
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [react(), dts({
-        tsconfigPath: './tsconfig.app.json',
+        tsconfigPath: './tsconfig.build.app.json',
         // include: ['src'],
         // copyDtsFiles: true,
     }),
@@ -45,6 +45,7 @@ export default defineConfig({
                 'react/jsx-dev-runtime',
                 'dayjs',
                 "antd",
+                "react-draggable",
             ],
             output: {
                 globals: {
@@ -53,6 +54,7 @@ export default defineConfig({
                     'react/jsx-runtime': 'jsxRuntime',
                     'react/jsx-dev-runtime': 'jsxDevRuntime',
                     'antd': 'antd',
+                    'react-draggable': 'ReactDraggable',
                 },
             },
         },

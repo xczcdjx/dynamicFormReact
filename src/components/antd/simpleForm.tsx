@@ -1,8 +1,8 @@
 import {useRef, useState} from "react";
 import {Button, Input, Radio} from "antd";
-import {AdDynamicForm, type adDynamicFormRef, renderInput} from "../../../dist/antd";
-import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "../../../dist";
-import type {PresetType} from "../../../dist/types";
+import {AdDynamicForm, type adDynamicFormRef, renderInput} from "@/antd";
+import {omitFormCommonKey, OmitValue, useDyForm, useReactiveForm} from "@/index";
+import type {PresetType} from "@/types";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {

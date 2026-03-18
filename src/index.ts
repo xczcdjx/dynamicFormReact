@@ -5,6 +5,8 @@ import type {ExposeType} from "@/types";
 
 export * from './utils/tools'
 export * from './hooks/useDyForm'
+export * from './hooks/useTool'
+export * from './hooks/zealForm'
 export * from './constants'
 
 export type dynamicInputRef = ExposeType

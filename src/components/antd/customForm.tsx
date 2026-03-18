@@ -7,8 +7,8 @@ import {
     OmitValue,
     useDyForm,
     useReactiveForm
-} from "../../../dist";
-import {AdDynamicForm, type adDynamicFormRef} from "../../../dist/antd";
+} from "@/index";
+import {AdDynamicForm, type adDynamicFormRef} from "@/antd";
 import type {Rule} from "antd/es/form";
 
 type RowProps = {
