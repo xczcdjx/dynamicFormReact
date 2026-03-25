@@ -1,37 +1,10 @@
 import React, {
     useMemo,
-    type ReactNode,
     type RefObject,
 } from "react";
 import {Button, Card} from "antd";
 import {useObserverSize, useWindowSize} from "../hooks/useTool";
-
-export type ZealCardSlotArgs = {
-    width: number;
-    height: number;
-    isMobile: boolean;
-};
-
-export type ZealCardDefaultArgs = ZealCardSlotArgs & {
-    tableHeight: number;
-};
-
-export type AntZealCardProps = {
-    title?: ReactNode;
-    zealHeight?: string;
-    outPadding?: number;
-    searchBtnTxt?: [string, string] | string[];
-    checkWindowSize?: [number, number] | number[];
-
-    header?: (args: ZealCardSlotArgs) => ReactNode;
-    footer?: (args: ZealCardSlotArgs) => ReactNode;
-    searchForm?: () => ReactNode;
-    searchBtn?: () => ReactNode;
-    controlBtn?: () => ReactNode;
-    toolBtn?: () => ReactNode;
-    rest?: () => ReactNode;
-    children?: ReactNode | ((args: ZealCardDefaultArgs) => ReactNode);
-};
+import type {AntZealCardProps} from "@/antd/types";
 
 export default function AntZealCard(props: AntZealCardProps) {
     const {

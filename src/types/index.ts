@@ -84,10 +84,15 @@ export type ItemsState<Row extends Record<string, any>, RuleT = any> = readonly 
     Dispatch<SetStateAction<DyFormItem<Row, RuleT>[]>>
 ];
 export type PresetType = "fullRow" | "grid";
-export type ExposeDyFType = {
+export type GetResult<T> = {
+    (): T
+    (t: 'res'): T
+    (t: 'ori'): DyFormItem<T>[]
+}
+export type ExposeDyFType<Row extends Record<string, any> = any> = {
     reset?: (v?: any) => void
-    validator: () => Promise<object>
-    getResult?: (t?: 'res' | 'ori') => DyFormItem[] | object
+    validator: () => Promise<Row>
+    getResult?: GetResult<Row>
 }
 export type RenderType =
     | "renderInput"

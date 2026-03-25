@@ -6,40 +6,10 @@ import React, {
 } from "react";
 import {Button, Drawer} from "antd";
 import {useDyForm} from "@/hooks/useDyForm";
-import type {ItemsState} from "@/types";
 import AdDynamicForm from "./AdDynamicForm";
-import type {DrawerProps} from "antd";
-import type {ZealTableSearchSlots} from "@/types/slots";
 import {Pagination} from "antd";
-import type {PaginationProps} from "antd";
-import type {ZealPagination} from "@/types/form";
+import type {AdZealTableSearchProps, AdZealTableSearchRef, AntZealTablePaginationControlProps} from "@/antd/types";
 
-export type AdZealTableSearchProps<Row extends Record<string, any>, RuleT = any> = {
-    title?: string;
-    drawerTitle?: string;
-    searchItemsState: ItemsState<Row, RuleT>;
-    searchFormMaxHeight?: string;
-    drawerMaxHeight?: number;
-    drawerOpenTxt?: string;
-    searchBtnTxt?: [string, string] | string[];
-    mobileDrawer?: boolean;
-    closeDrawerAuto?: boolean;
-    drawerConfig?: DrawerProps;
-    copyDefault?: boolean;
-    isMobile?: boolean;
-
-    onReset?: () => void;
-    onSearch?: (data: Row) => void;
-
-    slots?: ZealTableSearchSlots;
-};
-
-export type AdZealTableSearchRef<Row extends Record<string, any> = Record<string, any>> = {
-    onReset: () => void;
-    onSearch: () => void;
-    toggleDrawer: (f?: boolean) => void;
-    getParams: () => Row;
-};
 
 function InnerAdZealTableSearch<Row extends Record<string, any>, RuleT = any>(
     props: AdZealTableSearchProps<Row, RuleT>,
@@ -208,18 +178,6 @@ export const AdZealTableSearch = forwardRef(InnerAdZealTableSearch) as <
 ) => React.ReactElement;
 
 // pagination
-export type AntZealPaginationState = {
-    pagination: ZealPagination
-    setPageNo: (page: number) => void;
-    setPageSize: (pageSize: number) => void;
-};
-export type AntZealTablePaginationControlProps = {
-    paginationModal: AntZealPaginationState;
-    onChange: (pageNo: number, pageSize: number) => void;
-    pageConfig?: PaginationProps;
-    isMobile?: boolean;
-    prefix?: (pageModal: ZealPagination) => React.ReactNode;
-};
 
 export function AdZealTablePaginationControl(
     props: AntZealTablePaginationControlProps

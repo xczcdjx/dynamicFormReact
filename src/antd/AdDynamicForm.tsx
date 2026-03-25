@@ -1,33 +1,19 @@
-import {
+import React, {
     forwardRef,
     useEffect,
     useMemo,
     useImperativeHandle,
-    type ReactNode, useState,
+    useState,
 } from "react";
 import {Form, Row, Col} from "antd";
-import type {FormInstance, FormProps, RowProps, ColProps} from "antd";
+import type {FormInstance, ColProps} from "antd";
 import type {Rule} from "antd/es/form";
 import type {NamePath} from "antd/es/form/interface";
 
 import type {DyFormItem} from "@/types/form";
 import type {ExposeDyFType, PresetType} from "@/types";
+import type {AdDynamicFormProps, RulesMap} from "@/antd/types";
 
-type RulesMap = Record<string, Rule | Rule[]>;
-
-type AdDynamicFormProps = {
-    header?: () => ReactNode;
-    footer?: () => ReactNode;
-
-    items: DyFormItem[];
-
-    preset?: PresetType; // 'fullRow' | 'grid'
-    formConfig?: FormProps;
-    gridConfig?: RowProps;
-    validateTrigger?: string | null
-    // 字段级 rules（外部覆盖内部 required 自动规则）
-    rules?: RulesMap;
-};
 
 // ---------- helpers ----------
 function toNamePath(p: any): NamePath {
@@ -68,7 +54,10 @@ function buildValuesFromItems(items: DyFormItem[]) {
 }
 
 // ---------- component ----------
-const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref) => {
+function InnerAdDynamicForm<Row extends Record<string, any>, RuleT = any>(
+    props: AdDynamicFormProps<Row, RuleT>,
+    ref: React.ForwardedRef<ExposeDyFType<Row>>
+) {
     const [form] = Form.useForm();
     const validateTrigger = props.validateTrigger ?? 'onBlur'
     const validatorObj = props.validateTrigger === null ? undefined : validateTrigger
@@ -258,7 +247,7 @@ const AdDynamicForm = forwardRef<ExposeDyFType, AdDynamicFormProps>((props, ref)
             {props.footer && <div className="footer">{props.footer()}</div>}
         </div>
     );
-});
+}
 
 function isEmpty(v: any) {
     if (v === undefined || v === null || v === "") return true;
@@ -288,5 +277,11 @@ async function runRules(value: any, rules: Rule[]) {
     }
 }
 
-
-export default AdDynamicForm;
+export default forwardRef(InnerAdDynamicForm) as <
+    Row extends Record<string, any>,
+    RuleT = any
+>(
+    props: AdDynamicFormProps<Row, RuleT> & {
+        ref?: React.Ref<ExposeDyFType<Row>>;
+    }
+) => React.ReactElement;

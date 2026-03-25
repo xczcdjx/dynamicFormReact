@@ -3,28 +3,13 @@ import {
     useImperativeHandle,
     useMemo,
     useState,
-    type ReactNode, useRef,
+    useRef,
 } from "react";
 import {Button, Modal} from "antd";
 import type {ModalProps} from "antd";
-import type {adPopupModalRef} from "@/antd";
+import type {AdPopupModalProps, adPopupModalRef} from "@/antd";
 import type {DraggableData, DraggableEvent} from 'react-draggable';
 import Draggable from 'react-draggable';
-
-export type AdPopupModalProps = {
-    title?: ReactNode | (() => ReactNode);
-    modalProps?: ModalProps;
-    to?: string | HTMLElement;
-    showClose?: boolean;
-    draggable?: boolean;
-    closeOnMask?: boolean;
-    width?: string | number;
-    onCancel?: () => boolean | void | Promise<boolean | void>;
-    onSubmit?: () => boolean | void | Promise<boolean | void>;
-    footerTxt?: [string, string] | string[];
-    modalRender?: ((node: ReactNode) => ReactNode) | undefined
-    children?: ReactNode;
-};
 
 const AdPopupModal = forwardRef<adPopupModalRef, AdPopupModalProps>(
     (

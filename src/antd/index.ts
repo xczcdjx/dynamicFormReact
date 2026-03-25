@@ -5,12 +5,13 @@ import {AdZealTableSearch,AdZealTablePaginationControl} from "./AdZealTableTool"
 import {useDecorateForm} from './hooks/decorateForm'
 import type {ExposeDyFType} from "@/types";
 
-type adDynamicFormRef = ExposeDyFType
+type adDynamicFormRef<T extends Record<string, any> = any> = ExposeDyFType<T>
 type adPopupModalRef = {
     toggle: (f?: boolean) => void;
 }
 export * from './hooks/renderForm'
 export * from './utils'
+export * from './types'
 export type {
     adDynamicFormRef, adPopupModalRef
 }

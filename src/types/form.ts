@@ -30,7 +30,7 @@ export interface BaseDyFormItem<T = any> {
 export interface DyFormItem<K = any, RuleT = any> extends BaseDyFormItem<K> {
     path?: string
     hidden?: boolean
-    render2?: (formItem: DyFormItem) => ReactNode
+    render2?: (formItem: DyFormItem<K,RuleT>) => ReactNode
     // reset?: (formItem: DyFormItem) => void
     rule?: RuleT
     required?: boolean
