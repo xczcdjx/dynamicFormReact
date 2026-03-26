@@ -331,7 +331,7 @@ export function renderInputNumber(
         rf?.onChange?.(e, rf);
         optionProps?.onChange?.(e);
     };
-    return <InputNumber {...resetRf} onChange={handleChange} {...optionProps}/>
+    return <InputNumber {...resetRf} style={{width:'100%'}} onChange={handleChange} {...optionProps}/>
 }
 
 export function renderDynamicTags(

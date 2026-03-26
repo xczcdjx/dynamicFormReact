@@ -79,19 +79,19 @@ export type AdZealTableSearchProps<Row extends Record<string, any>, RuleT = any>
     slots?: ZealTableSearchSlots;
 };
 
-export type AdZealTableSearchRef<Row extends Record<string, any> = Record<string, any>> = {
+export type adZealTableSearchRef<Row extends Record<string, any> = Record<string, any>> = {
     onReset: () => void;
     onSearch: () => void;
     toggleDrawer: (f?: boolean) => void;
     getParams: () => Row;
 };
-export type AntZealPaginationState = {
+/*export type AntZealPaginationState = {
     pagination: ZealPagination
     setPageNo: (page: number) => void;
     setPageSize: (pageSize: number) => void;
-};
+};*/
 export type AntZealTablePaginationControlProps = {
-    paginationModal: AntZealPaginationState;
+    pagination: ZealPagination;
     onChange: (pageNo: number, pageSize: number) => void;
     pageConfig?: PaginationProps;
     isMobile?: boolean;

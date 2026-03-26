@@ -8,12 +8,12 @@ import {Button, Drawer} from "antd";
 import {useDyForm} from "@/hooks/useDyForm";
 import AdDynamicForm from "./AdDynamicForm";
 import {Pagination} from "antd";
-import type {AdZealTableSearchProps, AdZealTableSearchRef, AntZealTablePaginationControlProps} from "@/antd/types";
+import type {AdZealTableSearchProps, adZealTableSearchRef, AntZealTablePaginationControlProps} from "@/antd/types";
 
 
 function InnerAdZealTableSearch<Row extends Record<string, any>, RuleT = any>(
     props: AdZealTableSearchProps<Row, RuleT>,
-    ref: React.ForwardedRef<AdZealTableSearchRef<Row>>
+    ref: React.ForwardedRef<adZealTableSearchRef<Row>>
 ) {
     const {
         title,
@@ -173,7 +173,7 @@ export const AdZealTableSearch = forwardRef(InnerAdZealTableSearch) as <
     RuleT = any
 >(
     props: AdZealTableSearchProps<Row, RuleT> & {
-        ref?: React.Ref<AdZealTableSearchRef<Row>>;
+        ref?: React.Ref<adZealTableSearchRef<Row>>;
     }
 ) => React.ReactElement;
 
@@ -183,13 +183,12 @@ export function AdZealTablePaginationControl(
     props: AntZealTablePaginationControlProps
 ) {
     const {
-        paginationModal,
+        pagination,
         onChange,
         pageConfig,
         isMobile = false,
         prefix,
     } = props;
-    const {pagination, setPageSize, setPageNo} = paginationModal
     const skipNextChangeRef = useRef(false);
 
     return (
@@ -209,17 +208,11 @@ export function AdZealTablePaginationControl(
                         skipNextChangeRef.current = false;
                         return;
                     }
-                    setPageNo(page);
-                    if (size && size !== pagination.pageSize) {
-                        setPageSize(size);
-                    }
                     pagination.onChange(page, size);
                     onChange?.(page, size);
                 }}
                 onShowSizeChange={(_, size) => {
                     skipNextChangeRef.current = true;
-                    setPageNo(1);
-                    setPageSize(size);
                     pagination.onPageSizeChange?.(size);
                     onChange?.(1, size);
                 }}

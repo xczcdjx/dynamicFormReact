@@ -110,6 +110,7 @@ export default function AntZealCard(props: AntZealCardProps) {
                     body: {
                         padding: '1px',
                         height: tableHeight + 'px',
+                        overflowY: 'hidden',
                     },
                 }}
             >
