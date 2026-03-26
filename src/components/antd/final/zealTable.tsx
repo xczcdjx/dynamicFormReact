@@ -12,7 +12,7 @@ import {
 } from "@/antd";
 import {Button, Input, message, Space, Table, type TableProps} from "antd";
 import {useDyForm} from "@/index";
-
+import './zealTable.css'
 interface SongType {
     no: number | string
     title: string
@@ -21,7 +21,7 @@ interface SongType {
 
 const ZealTable = () => {
     const [messageApi, contextHolder] = message.useMessage();
-    const {pagination, pageModalRef, setTotal} = usePagination(fetchData);
+    const {pagination, pageModalRef, setTotal,setPageNo} = usePagination(fetchData);
     const searchFormItems = useDecorateForm<SongType>([
         {
             key: "no",
@@ -99,6 +99,8 @@ const ZealTable = () => {
         {
             title: 'Action',
             key: 'action',
+            fixed: 'right',
+            width: 180,
             render: (_, record) => (
                 <Space size="small">
                     <Button size='small' color='orange' variant={'dashed'} onClick={() => {
@@ -151,24 +153,36 @@ const ZealTable = () => {
                         console.log(pn, ps)
                     }}
                 />}
-                controlBtn={() => <a>{pagination.pageNo}</a>}
-                toolBtn={() => <a>更多</a>}
+                controlBtn={() => <>
+                    <Button color={'green'} variant={'dashed'} size='small' onClick={() => {
+
+                    }}>Add</Button>
+                    <Button color={'red'} variant={'dashed'} size='small' onClick={() => {
+
+                    }}>Del</Button>
+                </>}
+                toolBtn={() => <Button variant={'dashed'} size='small'>Tools...</Button>}
                 header={({isMobile}) =>
                     <AdZealTableSearch<SongType>
                         ref={adZealTableSearchRef}
                         isMobile={isMobile}
                         searchItemsState={searchFormItems}
                         onSearch={(v) => {
-                            console.log(v)
+                            setPageNo(1)
+                            fetchData()
+                        }}
+                        onReset={()=>{
+                            setPageNo(1)
+                            fetchData()
                         }}
                     />
                 }
             >
-                {({tableHeight}) => (
+                {({tableHeight,footerH}) => (
                     <>
                         <Table
                             loading={tableLoading}
-                            scroll={{y: tableHeight}}
+                            scroll={{ y: tableHeight - footerH, x: 900 }}
                             dataSource={tableData}
                             columns={columns}
                             pagination={false}
