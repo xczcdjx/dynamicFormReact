@@ -34,29 +34,50 @@ export function usePagination(
     const [pageModal, setPageModal] = useStateCallback<PageModal>(initialPageModal);
     const pageModalRef = useRef<PageModal>(initialPageModal);
 
-    function setPageNo(pageNo: number, skip?: boolean) {
-        setPageModal(p => ({
-            ...p, pageNo
-        }), pm => {
-            pageModalRef.current = pm
-            if (skip) return
-            cb?.(pm.pageNo, pm.pageSize ?? pageModal.pageSize);
-        })
+    function updatePageModal(
+        updater: SetStateAction<PageModal>,
+        cbAfter?: (pm: PageModal) => void
+    ) {
+        setPageModal(prev => {
+            const next = typeof updater === "function"
+                ? (updater as (prev: PageModal) => PageModal)(prev)
+                : updater;
+            pageModalRef.current = next;
+            return next;
+        }, cbAfter);
     }
 
-    function setPageSize(pageSize: number) {
-        setPageModal(p => ({
-            ...p, pageSize
-        }), pm => {
-            pageModalRef.current = pm
-            cb?.(pm.pageNo, pm.pageSize ?? pageModal.pageSize);
-        })
+    function setPageNo(pageNo: number, skip?: boolean) {
+        updatePageModal(
+            prev => ({
+                ...prev,
+                pageNo,
+            }),
+            pm => {
+                if (skip) return;
+                cb?.(pm.pageNo, pm.pageSize);
+            }
+        );
+    }
+
+    function setPageSize(pageSize: number, skip?: boolean) {
+        updatePageModal(
+            prev => ({
+                ...prev,
+                pageSize,
+            }),
+            pm => {
+                if (skip) return;
+                cb?.(pm.pageNo, pm.pageSize);
+            }
+        );
     }
 
     function setTotal(total: number) {
-        setPageModal(p => ({
-            ...p, total
-        }), pm => pageModalRef.current = pm)
+        updatePageModal(prev => ({
+            ...prev,
+            total,
+        }));
     }
 
     const pagination = useMemo<ZealPagination>(
@@ -76,7 +97,7 @@ export function usePagination(
 
             onPageSizeChange(nextPageSize) {
                 setPageNo(1, true);
-                setPageSize(nextPageSize!);
+                setPageSize(nextPageSize!)
             },
 
             setTotalSize(totalSize: number) {
