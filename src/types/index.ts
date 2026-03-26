@@ -133,3 +133,11 @@ export type Renderers<Row extends Record<string, any>, RuleT = any> = {
     renderSlider: (props: any, it: any) => any
     renderInputNumber: (props: any, it: any) => any
 }
+
+export type CtxHeightState={
+    wrapInnerH: number;
+    restH: number;
+    headerH: number;
+    footerH: number;
+    contentPadY: number;
+}

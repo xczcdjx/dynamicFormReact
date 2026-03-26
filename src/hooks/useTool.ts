@@ -1,5 +1,6 @@
 import {Debounce, getPadY} from "../utils/tools";
 import {useEffect, useMemo, useRef, useState} from "react";
+import type {CtxHeightState} from "@/types";
 
 
 function useWindowSize(mobileWidth: number = 756, delay: number = 500) {
@@ -26,45 +27,53 @@ function useWindowSize(mobileWidth: number = 756, delay: number = 500) {
     }
 }
 
-function useObserverSize() {
+function useObserverSize(delay:number=120) {
     const wrapRef = useRef<HTMLDivElement | null>(null);
     const restRef = useRef<HTMLDivElement | null>(null);
     const cardRef = useRef<HTMLDivElement | null>(null);
 
     const [tableHeight, setTableHeight] = useState(0);
+    const [ctxHeight, setCtxHeight] = useState<CtxHeightState>({
+        wrapInnerH: 0,
+        restH: 0,
+        headerH: 0,
+        footerH: 0,
+        contentPadY: 0,
+    });
+
+    const calcCore = () => {
+        const wrap = wrapRef.current;
+        const cardEl = cardRef.current;
+
+        if (!wrap || !cardEl) return;
+
+        const wrapInnerH = wrap.clientHeight - getPadY(wrap);
+
+        const restH = restRef.current?.offsetHeight ?? 0;
+
+        const headerWrap =
+            (cardEl.querySelector(".ant-card-head") as HTMLElement | null) ?? null;
+
+        const footerWrap =
+            (cardEl.querySelector(".ant-card-actions") as HTMLElement | null) ?? null;
+
+        const contentEl =
+            (cardEl.querySelector(".ant-card-body") as HTMLElement | null) ?? null;
+
+        const headerH = headerWrap?.offsetHeight ?? 0;
+        const footerH = footerWrap?.offsetHeight ?? 0;
+        const contentPadY = getPadY(contentEl);
+
+        setCtxHeight({
+            contentPadY, footerH, headerH, restH, wrapInnerH
+        })
+        setTableHeight(Math.max(0, wrapInnerH - restH - headerH - footerH - contentPadY))
+    };
 
     useEffect(() => {
         let ro: ResizeObserver | null = null;
 
-        const calc = () => {
-            const wrap = wrapRef.current;
-            const cardEl = cardRef.current;
-
-            if (!wrap || !cardEl) return;
-
-            const wrapInnerH = wrap.clientHeight - getPadY(wrap);
-
-            const restH = restRef.current?.offsetHeight ?? 0;
-
-            const headerWrap =
-                (cardEl.querySelector(".ant-card-head") as HTMLElement | null) ?? null;
-
-            const footerWrap =
-                (cardEl.querySelector(".ant-card-actions") as HTMLElement | null) ?? null;
-
-            const contentEl =
-                (cardEl.querySelector(".ant-card-body") as HTMLElement | null) ?? null;
-
-            const headerH = headerWrap?.offsetHeight ?? 0;
-            const footerH = footerWrap?.offsetHeight ?? 0;
-            const contentPadY = getPadY(contentEl);
-
-            setTableHeight(
-                Math.max(0, wrapInnerH - restH - headerH - footerH - contentPadY)
-            );
-        };
-
-        calc();
+        const calc=Debounce(calcCore,delay);
 
         ro = new ResizeObserver(calc);
         if (wrapRef.current) ro.observe(wrapRef.current);
@@ -77,16 +86,18 @@ function useObserverSize() {
             ro?.disconnect();
             window.removeEventListener("resize", calc);
         };
-    }, []);
+    }, [delay,calcCore]);
 
     return {
         wrapRef,
         cardRef,
         restRef,
         tableHeight,
+        ctxHeight,
+        calc: calcCore,
     };
 }
 
 export {
-    useWindowSize,useObserverSize
+    useWindowSize, useObserverSize
 }

@@ -27,7 +27,7 @@ export default function AntZealCard(props: AntZealCardProps) {
     const [mobileWidth = 756, delay = 500] = checkWindowSize;
 
     const sizeObj = useWindowSize(mobileWidth, delay);
-    const {wrapRef, cardRef, restRef, tableHeight} = useObserverSize();
+    const {wrapRef, cardRef, restRef, tableHeight, ctxHeight} = useObserverSize();
 
     const slotArgs = useMemo(
         () => ({
@@ -46,7 +46,7 @@ export default function AntZealCard(props: AntZealCardProps) {
                 <div className="header">
                     {header(slotArgs)}
                     <div className="controlBtn">
-                        <div>{controlBtn?.()}</div>
+                        <div className='controls'>{controlBtn?.()}</div>
                         {toolBtn?.()}
                     </div>
                 </div>
@@ -83,6 +83,7 @@ export default function AntZealCard(props: AntZealCardProps) {
         if (typeof children === "function") {
             return children({
                 tableHeight,
+                ...ctxHeight,
                 ...slotArgs,
             });
         }
@@ -105,12 +106,12 @@ export default function AntZealCard(props: AntZealCardProps) {
                 style={{height: "100%"}}
                 styles={{
                     header: {
-                        padding:'10px'
+                        padding: '10px'
                     },
                     body: {
                         padding: '1px',
                         height: tableHeight + 'px',
-                        overflowY: 'hidden',
+                        // overflowY: 'hidden',
                     },
                 }}
             >

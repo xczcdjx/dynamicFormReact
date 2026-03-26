@@ -1,9 +1,10 @@
-import type {ItemsState, PresetType} from "@/types";
+import type {CtxHeightState, ItemsState, PresetType} from "@/types";
 import {type DrawerProps, type FormProps, type ModalProps, type PaginationProps, Row, type RowProps} from "antd";
 import type {ZealTableSearchSlots} from "@/types/slots.ts";
 import type {DyFormItem, ZealPagination} from "@/types/form.ts";
 import React, {type ReactNode} from "react";
 import type {Rule} from "antd/es/form";
+
 export type RulesMap = Record<string, Rule | Rule[]>;
 
 export type AdDynamicFormProps<Row extends Record<string, any>, RuleT = any> = {
@@ -41,7 +42,7 @@ export type ZealCardSlotArgs = {
 
 export type ZealCardDefaultArgs = ZealCardSlotArgs & {
     tableHeight: number;
-};
+}&CtxHeightState;
 
 export type AntZealCardProps = {
     title?: ReactNode;
