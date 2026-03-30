@@ -10,6 +10,7 @@ const omitAllCommonKey = [
     'valueField',
     'childField',
     'formItemProps',
+    'requiredHint'
 ] as const
 const DATE_FORMAT = 'YYYY-MM-DD'
 const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'

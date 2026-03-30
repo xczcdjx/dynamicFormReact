@@ -50,7 +50,7 @@ export function renderInput(
     optionProps: any = {},
     rf?: DyFormItem
 ) {
-    const {type = "text", key, render2, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {type = "text", key, render2, requiredHint, ...resetRf} = (rf ?? {}) as DyFormItem;
 
     const handleChange = (e: React.ChangeEvent<any>) => {
         rf?.onChange?.(e.target.value, rf);
@@ -106,7 +106,7 @@ export function renderSelect(
     optionProps: SelectProps = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {type, key, render2, requiredHint, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
     const {labelField, valueField, childField, ...restParams} = resetRf as any
     const sOptions = mergeOptions(options, resetRf)
     const onSearch = (kw: string) => {
@@ -133,7 +133,7 @@ export function renderTreeSelect(
     optionProps: TreeSelectProps = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {type, key, requiredHint, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
     const {labelField, valueField, childField, ...restParams} = resetRf as any
     const sOptions = mergeOptions(options, resetRf, 'title')
     const onSearch = (kw: string) => {
@@ -176,7 +176,7 @@ export function renderPopSelect(
     rf?: DyFormItem,
     defaultRender?: ReactNode
 ) {
-    const {labelField, valueField, onChange: rfOnChange, mode, key, ...restRf} = (rf ?? {}) as any;
+    const {labelField, valueField, requiredHint, onChange: rfOnChange, mode, key, ...restRf} = (rf ?? {}) as any;
 
     // 你原来的 rf.onChange 形态：rfOnChange(val, rf, opt)
     const onChangeEx = (val: any, opt: any) => {
@@ -206,7 +206,7 @@ export function renderRadioGroup(
     optionProps: RadioGroupProps = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {type, key, render2, requiredHint, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
     const {labelField, valueField, childField, ...restParams} = resetRf as any
     const sOptions = mergeBoxOptions(options, resetRf)
     const handleChange = (e: RadioChangeEvent) => {
@@ -229,7 +229,7 @@ export function renderCheckboxGroup(
     optionProps: CheckboxGroupProps = {},
     rf?: DyFormItem
 ) {
-    const {type, key, render2, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
+    const {type, key, render2, requiredHint, searchOnLabel, ...resetRf} = (rf ?? {}) as DyFormItem;
     const {labelField, valueField, childField, ...restParams} = resetRf as any
     const sOptions = mergeBoxOptions(options, resetRf)
     const handleChange = (arr: any) => {
@@ -331,7 +331,7 @@ export function renderInputNumber(
         rf?.onChange?.(e, rf);
         optionProps?.onChange?.(e);
     };
-    return <InputNumber {...resetRf} style={{width:'100%'}} onChange={handleChange} {...optionProps}/>
+    return <InputNumber {...resetRf} style={{width: '100%'}} onChange={handleChange} {...optionProps}/>
 }
 
 export function renderDynamicTags(

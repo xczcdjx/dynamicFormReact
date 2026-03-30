@@ -94,7 +94,7 @@ function InnerAdDynamicForm<Row extends Record<string, any>, RuleT = any>(
                 rule = {
                     required: true,
                     message: it?.requiredHint?.(labelStr) ?? `${labelStr || it?.key}不能为空`,
-                    validateTrigger: validatorObj
+                    // validateTrigger: validatorObj
                 } satisfies Rule;
             }
 
