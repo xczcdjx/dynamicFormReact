@@ -10,6 +10,8 @@
 
 ## 概述
 
+> 新增综合CRUD模版
+
 `DynamicForm` 一个灵活且动态的表单组件，使用数组，简化模版操作，提供多种hook快速操作表单等。
 
 - 简化节点代码，快速处理表单
@@ -31,15 +33,300 @@ npm install dynamicformdjx-react
 yarn add dynamicformdjx-react
 # or
 pnpm add dynamicformdjx-react
+
+
+```
+
+### 综合CRUD template 新
+
+> 需配合antd v5+ 版本以上
+
+###### zealTable.css
+
+```css
+body {
+    padding: 15px;
+}
+
+.zealCard .ant-card .ant-card-body .ant-table .ant-table-body {
+    overflow: auto !important;
+}
+```
+
+###### zealTable.tsx
+
+```tsx
+import React, {useEffect, useRef, useState} from "react";
+import type {Rule} from "antd/es/form";
+import {
+    AdDynamicForm, type adDynamicFormRef,
+    AdPopupModal, type adPopupModalRef,
+    AdZealCard,
+    AdZealTablePaginationControl,
+    AdZealTableSearch, type adZealTableSearchRef,
+    renderInput,
+    renderInputNumber,
+    useDecorateForm
+} from "dynamicformdjx-react/antd";
+import {Button, message, Modal, Space, Table, type TableProps} from "antd";
+import {useDyForm, usePagination, useReactiveForm} from "dynamicformdjx-react";
+import './zealTable.css'
+
+interface SongType {
+    id: string
+    no: number
+    title: string
+    length: string
+}
+
+const ZealTable = () => {
+    const [messageApi, contextHolder] = message.useMessage();
+    const [modal, contextModalHolder] = Modal.useModal();
+    const {pagination, pageModalRef, setTotal, setPageNo} = usePagination(fetchData);
+    const searchFormItems = useDecorateForm<SongType>([
+        {
+            key: "no",
+            label: "No",
+            renderType: 'renderInputNumber',
+            value: null,
+            span: 8
+        },
+        {
+            key: "title",
+            label: "Title",
+            allowClear: true,
+            renderType: 'renderInput',
+            value: null,
+            span: 8
+        },
+        {
+            key: "length",
+            label: "Length",
+            allowClear: true,
+            renderType: 'renderInput',
+            value: null,
+            span: 8
+        },
+    ])
+    const [formItems, setFormItems] = useReactiveForm<SongType, Rule | Rule[]>([
+        {
+            key: "no",
+            label: "No",
+            value: null,
+            required: true,
+            render2: (f) => renderInputNumber({}, f)
+        },
+        {
+            key: "title",
+            label: "Title",
+            value: null,
+            allowClear: true,
+            required: true,
+            requiredHint: (l) => `${l} is not empty`,
+            render2: (f) => renderInput({}, f),
+        },
+        {
+            key: "length",
+            label: "Length",
+            value: null,
+            allowClear: true,
+            render2: (f) => renderInput({}, f),
+        },
+    ])
+    const [zealData] = useState<SongType[]>([
+        {no: 3, title: 'Wonderwall', length: '4:18'},
+        {no: 4, title: 'Don\'t Look Back in Anger', length: '4:48'},
+        {no: 12, title: 'Champagne Supernova', length: '7:27'},
+    ].map(it => ({...it, id: React.useId()})))
+    const [referId, setReferId] = useState<string | number>(-1);
+    const [selRowKeys, setSelRowKeys] = useState<React.Key[]>([]);
+    const [tableData, setTableData] = useState<SongType[]>([])
+    const [tableLoading, setTableLoading] = useState<boolean>(false);
+    const useForm = useDyForm([formItems, setFormItems])
+    const adZealTableSearchRef = useRef<adZealTableSearchRef<SongType>>(null)
+    const addFormRef = useRef<adDynamicFormRef<SongType>>(null)
+    const upModalRef = useRef<adPopupModalRef>(null)
+    const columns: TableProps<SongType>['columns'] = [
+        {
+            title: 'No',
+            dataIndex: 'no',
+            key: 'no',
+            width: 80
+        },
+        {
+            title: 'Title',
+            dataIndex: 'title',
+            key: 'title',
+        },
+        {
+            title: 'Length',
+            dataIndex: 'length',
+            key: 'length',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            fixed: 'right',
+            width: 160,
+            align: 'center',
+            render: (_, record) => (
+                <Space size="small">
+                    <Button size='small' color='orange' variant={'dashed'}
+                            onClick={() => upItem(record)}>Update</Button>
+                    <Button size='small' color='red' variant={'dashed'} onClick={() => delItem(record)}>Delete</Button>
+                </Space>
+            ),
+        },
+    ];
+
+    // function
+    async function fetchData(pn?: number, ps?: number) {
+        setTableLoading(true)
+        // console.log(pn,ps) // new value
+        // const {pageNo, pageSize} = pagination // old value
+        const {pageNo, pageSize} = pageModalRef.current // correspond new value
+        const params = adZealTableSearchRef.current?.getParams()!
+        const r = await new Promise<{ data: SongType[], total: number }>((resolve, reject) => {
+            setTimeout(() => {
+                const start = (pageNo - 1) * pageSize
+                const {length, no, title} = params!
+                const data = zealData.filter(it => (!length || it.length.includes(length)) && (!title || it.title.includes(title)) && (!no || it.no === no))
+                resolve({
+                    data: data.slice(start, start + pageSize),
+                    total: data.length
+                })
+            }, 1500)
+        })
+        setTableData(r.data)
+        setTotal(r.total)
+        setTableLoading(false)
+    }
+
+    const addItem = () => {
+        setReferId(-1)
+        upModalRef.current?.toggle()
+        useForm.onReset()
+    }
+
+    function upItem(r: SongType) {
+        setReferId(r.id)
+        upModalRef.current?.toggle()
+        useForm.setValues(r)
+    }
+
+    function delItem(r: SongType) {
+        setTableData(p => p.filter(it => r.id !== it.id))
+        messageApi.success('Delete Successful')
+    }
+
+    const delSelect = async () => {
+        const confirmed = await modal.confirm({
+            title: `Delete?`,
+            content: (<>
+                <p>Confirm {selRowKeys.toString()} items</p>
+            </>)
+        })
+        if (confirmed) {
+            setTableData(p => p.filter(it => !selRowKeys.includes(it.id)))
+            message.success(`delete ${selRowKeys} successful`)
+            setSelRowKeys([])
+        }
+    }
+    const popSubmit = () => new Promise<boolean>(resolve => {
+        addFormRef.current?.validator().then(v => {
+            let msg = ''
+            if (referId === -1) {
+                msg = 'add successful'
+                setTableData(p => [...p, {...v, id: Date.now().toString()}])
+            } else {
+                msg = 'update successful'
+                setTableData(p => p.map(it => {
+                    if (it.id === referId) return {...it, ...v}
+                    return it
+                }))
+            }
+            message.success(msg)
+            resolve(true)
+            // fetchData()
+        }).catch(e => {
+            message.error(e?.message || '验证不通过')
+            resolve(false)
+        })
+    })
+    useEffect(() => {
+        fetchData()
+    }, []);
+    return (
+        <>
+            {contextHolder}
+            {contextModalHolder}
+            <AdZealCard
+                outPadding={15}
+                footer={({isMobile}) => <AdZealTablePaginationControl
+                    prefix={({total}) => <span>Total {total}</span>}
+                    isMobile={isMobile}
+                    pagination={pagination}
+                    onChange={(pn, ps) => {
+                        console.log(pn, ps)
+                    }}
+                />}
+                controlBtn={() => <>
+                    <Button color={'green'} variant={'dashed'} size='small' onClick={addItem}>Add</Button>
+                    <Button color={'red'} variant={'dashed'} size='small' disabled={!selRowKeys.length}
+                            onClick={delSelect}>Del</Button>
+                </>}
+                toolBtn={() => <Button variant={'dashed'} size='small'>Tools...</Button>}
+                header={({isMobile}) =>
+                    <AdZealTableSearch<SongType>
+                        title="zeal test"
+                        ref={adZealTableSearchRef}
+                        isMobile={isMobile}
+                        searchItemsState={searchFormItems}
+                        onSearch={(v) => {
+                            setPageNo(1)
+                            fetchData()
+                        }}
+                        onReset={() => {
+                            setPageNo(1)
+                            fetchData()
+                        }}
+                    />
+                }
+                rest={() => <AdPopupModal draggable title={referId === -1 ? 'Add item' : 'Update item'} ref={upModalRef}
+                                          onSubmit={popSubmit}>
+                    <AdDynamicForm items={formItems} ref={addFormRef}/>
+                </AdPopupModal>}
+            >
+                {({tableHeight, footerH}) => (
+                    <>
+                        <Table
+                            loading={tableLoading}
+                            scroll={{y: tableHeight - footerH, x: 800}}
+                            dataSource={tableData}
+                            columns={columns}
+                            pagination={false}
+                            rowKey={(d) => d.id}
+                            rowSelection={{
+                                onChange: (selectedRowKeys: React.Key[], selectedRows: SongType[]) => {
+                                    setSelRowKeys(selectedRowKeys)
+                                }
+                            }}
+                        />
+                    </>
+                )}
+            </AdZealCard>
+        </>)
+}
+export default ZealTable;
 ```
 
 ### 动态表单
 
 #### 与Antd配合
 
-> 需配合antd v5+ 版本以上
-
 ##### 简单表单
+
+> 还有自定义表单，装饰表单请参考文档
 
 ```tsx
 import {useRef, useState} from "react";
@@ -136,489 +423,6 @@ const SimpleForm = () => {
 };
 
 export default SimpleForm;
-
-```
-
-##### 自定义表单
-
-```tsx
-import {useRef} from "react";
-import {Button, Input, Select} from "antd";
-import {
-    DynamicInput,
-    type dynamicInputRef,
-    omitFormCommonKey,
-    OmitValue,
-    useDyForm,
-    useReactiveForm
-} from "dynamicformdjx-react";
-import {AdDynamicForm, type adDynamicFormRef} from "dynamicformdjx-react/antd";
-import type {Rule} from "antd/es/form";
-
-type RowProps = {
-    username: string
-    job: string
-    json: object
-}
-const CustomForm = () => {
-    const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
-        {
-            key: "username",
-            label: "用户名",
-            value: "",
-            allowClear: true,
-            render2: (f) => <Input placeholder="请输入姓名" {...OmitValue(f, omitFormCommonKey)}/>,
-            rule: [
-                {
-                    required: true,
-                    message: 'Please confirm your username!',
-                },
-                {
-                    validator: async (_, value) => {
-                        if (!value) return; // 交给 required 处理
-                        if (value.length < 3) {
-                            throw new Error('至少 3 个字符');
-                        }
-                    },
-                }
-            ],
-        },
-        {
-            key: "job",
-            label: "职位",
-            value: "",
-            required: true,
-            render2: (f) => <Select
-                style={{
-                    width: '100%'
-                }}
-                options={[
-                    {value: 'jack', label: 'Jack'},
-                    {value: 'lucy', label: 'Lucy'},
-                    {value: 'Yiminghe', label: 'yiminghe'},
-                    {value: 'disabled', label: 'Disabled', disabled: true},
-                ]}
-            />,
-        },
-        {
-            key: "json",
-            label: "Json",
-            value: {},
-            isCustom: true,
-            rule: [
-                {
-                    required: true,
-                    message: 'json 不能为空'
-                },
-                {
-                    validator: async (_, value) => {
-                        if (!value || Object.keys(value).length === 0) {
-                            throw new Error('json 不能为空');
-                        }
-                    },
-                }
-            ],
-            render2: f => {
-                return <DynamicInput ref={dynamicInputRef} value={f.value} onChange={(v: object) => {
-                    f.value = v
-                }} isController/>
-            },
-        },
-    ])
-    const useForm = useDyForm([formItems, setFormItems])
-    const antdFormRef = useRef<adDynamicFormRef>(null)
-    const dynamicInputRef = useRef<dynamicInputRef>(null)
-    return (
-        <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} items={formItems}/>
-            <div className="footer" style={{
-                display: 'flex',
-                gap: '5px'
-            }}>
-                <Button color={'green'} variant={'outlined'} onClick={() => {
-                    // const res=antdFormRef.current?.getResult?.()
-                    const res = useForm.getValues()
-                    console.log(res)
-                }}>getData</Button>
-                <Button color={'orange'} variant={'outlined'} onClick={() => {
-                    useForm.setValues({
-                        username: 'antd',
-                        job: 'jack'
-                    })
-                    dynamicInputRef.current?.onSet?.({
-                        a: 'Hello world',
-                        b: 1314,
-                        c: [5, 2, 0]
-                    })
-                }}>setData</Button>
-                <Button color={'blue'} variant={'outlined'} onClick={() => {
-                    antdFormRef.current?.validator().then(v => {
-                        console.log(v)
-                    }).catch(r => {
-                        console.error(r)
-                    })
-                }}>validator</Button>
-                <Button color={'red'} variant={'outlined'} onClick={() => {
-                    useForm.onReset()
-                    dynamicInputRef.current?.onSet?.({})
-                }}>reset</Button>
-            </div>
-        </div>
-    );
-};
-
-export default CustomForm;
-
-```
-
-##### 装饰表单
-
-```tsx
-import {DATETIME_FORMAT, TIME_FORMAT, useDyForm} from "dynamicformdjx-react";
-import type {Rule} from "antd/es/form";
-import {
-    AdDynamicForm,
-    type adDynamicFormRef, useDecorateForm,
-    datePickerFormat, renderDatePicker
-} from "dynamicformdjx-react/antd";
-import {useRef} from "react";
-import {Button} from "antd";
-
-type FormRow = {
-    password: string
-    job: number
-    birthday: string
-    time: string
-}
-const DecorateForm = () => {
-    const [formItems, setFormItems] = useDecorateForm<FormRow, Rule | Rule[]>([
-        {
-            key: "password",
-            label: "密码",
-            value: null,
-            allowClear: true,
-            placeholder: '请输入密码',
-            required: true,
-            type: 'password',
-            renderType: 'renderInput'
-        },
-        {
-            key: "job",
-            label: "职位",
-            value: null,
-            allowClear: true,
-            options: ['前端', '后端'].map((label, value) => ({label, value})),
-            renderType: 'renderSelect',
-        },
-        {
-            key: "birthday",
-            label: "生日",
-            value: null,
-            // render2: f => renderDatePicker({type: 'datetime', showTime: true}, f),
-            renderType: 'renderDatePicker',
-            renderProps: {
-                type: 'datetime', showTime: true, isRange: true
-            },
-            formItemProps: {
-                ...datePickerFormat({formatStr: DATETIME_FORMAT})
-            }
-        },
-        {
-            key: "time",
-            label: "时间",
-            value: ['00:00:00', '23:59:00'],
-            renderType: 'renderDatePicker',
-            renderProps: {
-                isRange: true,
-            },
-            formItemProps: {
-                ...datePickerFormat({formatStr: TIME_FORMAT})
-            }
-        }
-    ])
-    const useForm = useDyForm([formItems, setFormItems])
-    const antdFormRef = useRef<adDynamicFormRef>(null)
-    return (
-        <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} items={formItems}/>
-            <div className="footer" style={{
-                display: 'flex',
-                gap: '5px'
-            }}>
-                <Button color={'green'} variant={'outlined'} onClick={() => {
-                    // const res=antdFormRef.current?.getResult?.()
-                    const res = useForm.getValues()
-                    console.log(res)
-                }}>getData</Button>
-                <Button color={'orange'} variant={'outlined'} onClick={() => {
-                    useForm.setValues({
-                        password: 'Antd',
-                        job: 0,
-                        birthday: '2026-02-11'
-                    })
-                }}>setData</Button>
-                <Button color={'blue'} variant={'outlined'} onClick={() => {
-                    antdFormRef.current?.validator().then(v => {
-                        console.log(v)
-                    }).catch(r => {
-                        console.log(r)
-                    })
-                }}>validator</Button>
-                <Button color={'red'} variant={'outlined'} onClick={() => {
-                    useForm.onReset()
-                }}>reset</Button>
-                <Button variant={'outlined'} onClick={() => {
-                    useForm.setDisabled(true)
-                }}>setDisabled</Button>
-            </div>
-        </div>
-    );
-}
-export default DecorateForm;
-```
-
-##### 总表单
-
-```tsx
-import {useRef, useState} from "react";
-import {Button, Input, Radio} from "antd";
-import {
-    AdDynamicForm,
-    type adDynamicFormRef, renderCheckbox, renderCheckboxGroup, renderDatePicker, renderDynamicTags,
-    renderInput, renderInputNumber,
-    renderPopSelect, renderRadioButtonGroup, renderRadioGroup,
-    renderSelect, renderSlider, renderSwitch, renderTimePicker,
-    renderTreeSelect
-} from "dynamicformdjx-react/antd";
-import {useDyForm, useReactiveForm} from "dynamicformdjx-react";
-import type {Rule} from "antd/es/form";
-
-type RowProps = {
-    username: string
-    password: string
-    gender: number
-    description: string
-    email: string
-    birthday: string
-    desc: string
-    sex: number
-    birthdayT: number
-    admin: number
-    favorite: number[]
-    job: number
-    job2: number
-    job3: number
-    checkbox: boolean
-    future: string[]
-    slider: number
-    inputNumber: number
-}
-const AllForm = () => {
-    const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
-        {
-            key: "username",
-            label: "用户名",
-            value: "",
-            allowClear: true,
-            render2: f => renderInput({}, f),
-        },
-        {
-            key: "password",
-            label: "密码",
-            required: true,
-            value: "",
-            render2: (f) => renderInput({}, {...f, type: 'password'}),
-        },
-        {
-            key: "gender",
-            label: "性别",
-            value: null,
-            placeholder: '请选择性别',
-            labelField: 'f',
-            valueField: 'v',
-            showSearch: true,
-            allowClear: true,
-            searchOnLabel: true,
-            options: [
-                {f: <b>男</b>, v: 0},
-                {f: '女', v: 1}
-            ],
-            render2: (f) => renderSelect([], {}, f)
-        },
-        {
-            key: "job",
-            label: "职业",
-            value: null,
-            placeholder: '请选择职业',
-            labelField: 'f',
-            valueField: 'v',
-            showSearch: true,
-            allowClear: true,
-            searchOnLabel: true,
-            childField: 'childOptions',
-            options: [
-                {
-                    f: '前端', v: '1', childOptions: [
-                        {f: '网页开发', v: '1-1'},
-                        {f: '小程序开发', v: '1-2'},
-                    ]
-                },
-                {
-                    f: '后端', v: '2', childOptions: [
-                        {f: '后台开发', v: '2-1'},
-                        {f: '运维', v: '2-2'},
-                    ]
-                }
-            ],
-            render2: (f) => renderTreeSelect([], {
-                treeDefaultExpandAll: true
-            }, f),
-        },
-        {
-            key: "job2",
-            label: "职位2",
-            value: null,
-            labelField: 'l',
-            valueField: 'v',
-            options: ['Drive My Car', 'Norwegian Wood'].map((label, index) => ({
-                l: label,
-                v: label,
-                children: [
-                    {l: 'aaa' + index, v: 'aaa' + index},
-                    {l: 'bbb' + index, v: 'bbb' + index},
-                ]
-            })),
-            // mode: 'multiple',
-            render2: f => renderPopSelect([], {}, f),
-        },
-        {
-            key: "sex",
-            label: "性别",
-            labelField: 'label1',
-            valueField: 'value1',
-            value: null,
-            options: [
-                {label1: '男', value1: 0}, {label1: '女', value1: 1},
-            ],
-            render2: f => renderRadioGroup([], {}, f),
-        },
-        {
-            key: "favorite",
-            label: "爱好",
-            labelField: 'fl',
-            valueField: 'fv',
-            sort: 1,
-            options: [
-                {fl: '吃饭', fv: 0},
-                {fl: '睡觉', fv: 1},
-                {fl: '打豆豆', fv: 2},
-            ],
-            value: [],
-            render2: f => renderCheckboxGroup([], {}, f),
-        },
-        {
-            key: "admin",
-            label: "管理员？",
-            value: null,
-            render2: f => renderSwitch({}, f),
-        },
-        {
-            key: "birthday",
-            label: "生日",
-            value: null,
-            render2: f => renderDatePicker({showTime: true}, f),
-        },
-        {
-            key: "birthdayT",
-            label: "时间",
-            value: null,
-            render2: f => renderTimePicker({}, f),
-        },
-        {
-            key: "future",
-            label: "未来",
-            value: Array.from({length:4}).map((_,i)=>`hello world ${i+1}`),
-            options: [
-                {label: '你没见过不等于没有', value: 'hello world 1'},
-                {
-                    label: '不要给自己设限',
-                    value: 'hello world 2'
-                },
-                {
-                    label: '不要说连升两级',
-                    value: 'hello world 3'
-                },
-                {
-                    label: '直接升到 CEO 都是有可能的',
-                    value: 'hello world 4'
-                }
-            ],
-            render2: f => renderDynamicTags([], {}, f),
-        },
-        {
-            key: "checkbox",
-            label: "复选",
-            value: true,
-            render2: f => renderCheckbox({}, f),
-            formItemProps: {
-                valuePropName: 'checked',
-            }
-        },
-        {
-            key: "slider",
-            label: "滑块",
-            value: 0,
-            render2: f => renderSlider({}, f),
-        },
-        {
-            key: "inputNumber",
-            label: "数字输入",
-            value: 20,
-            render2: f => renderInputNumber({}, f),
-        },
-    ])
-    const useForm = useDyForm([formItems, setFormItems])
-    const antdFormRef = useRef<adDynamicFormRef>(null)
-    const rules: Partial<Record<keyof RowProps, Rule | Rule[]>> = {
-        desc: [{required: true, message: '请输入详情'}]
-    }
-    return (
-        <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} rules={rules} items={formItems}/>
-            <div className="footer" style={{
-                display: 'flex',
-                gap: '5px'
-            }}>
-                <Button color={'green'} variant={'outlined'} onClick={() => {
-                    // const res=antdFormRef.current?.getResult?.()
-                    const res = useForm.getValues()
-                    console.log(res)
-                }}>getData</Button>
-                <Button color={'orange'} variant={'outlined'} onClick={() => {
-                    useForm.setValues({
-                        username: 'antd',
-                        password: 'I love you'
-                    })
-                }}>setData</Button>
-                <Button color={'blue'} variant={'outlined'} onClick={() => {
-                    antdFormRef.current?.validator().then(v => {
-                        console.log(v)
-                    }).catch(r => {
-                        console.log(r)
-                    })
-                }}>validator</Button>
-                <Button color={'red'} variant={'outlined'} onClick={() => {
-                    useForm.onReset()
-                }}>reset</Button>
-                <Button variant={'outlined'} onClick={() => {
-                    useForm.setDisabled(true)
-                }}>setDisabled</Button>
-            </div>
-        </div>
-    );
-};
-
-export default AllForm;
 
 ```
 

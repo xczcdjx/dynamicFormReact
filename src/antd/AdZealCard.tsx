@@ -10,7 +10,7 @@ export default function AntZealCard(props: AntZealCardProps) {
     const {
         title,
         zealHeight = "100vh",
-        outPadding = 20,
+        outPadding = 0,
         searchBtnTxt = ["Reset", "Search"],
         checkWindowSize = [756, 500],
 

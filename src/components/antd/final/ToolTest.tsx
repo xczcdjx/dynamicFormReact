@@ -45,13 +45,13 @@ type RowProps = {
     preset: string
 }
 export default function ToolTest() {
-    const paginationModal = usePagination((pn, ps) => {
+    const {pagination,setTotal} = usePagination((pn, ps) => {
 
         console.log("page change", pn, ps);
     });
 
     React.useEffect(() => {
-        paginationModal.setTotal(300);
+        setTotal(300);
     }, []);
 
     const [formItems, setFormItems] = useReactiveForm<RowProps, Rule | Rule[]>([
@@ -77,7 +77,7 @@ export default function ToolTest() {
         footer={({isMobile}) => <AdZealTablePaginationControl
             prefix={({total}) => <span>Total {total}</span>}
             isMobile={isMobile}
-            paginationModal={paginationModal}
+            pagination={pagination}
             onChange={(pn, ps) => {
                 console.log(pn, ps)
             }}

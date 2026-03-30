@@ -3,6 +3,8 @@ import {usePagination} from "@/hooks/zealForm.ts";
 import {useReactiveForm} from "@/hooks/useDyForm.ts";
 import type {Rule} from "antd/es/form";
 import {
+    AdDynamicForm, type adDynamicFormRef,
+    AdPopupModal, type adPopupModalRef,
     AdZealCard,
     AdZealTablePaginationControl,
     AdZealTableSearch, type adZealTableSearchRef,
@@ -10,18 +12,21 @@ import {
     renderInputNumber,
     useDecorateForm
 } from "@/antd";
-import {Button, Input, message, Space, Table, type TableProps} from "antd";
+import {Button, message, Modal, Space, Table, type TableProps} from "antd";
 import {useDyForm} from "@/index";
 import './zealTable.css'
+
 interface SongType {
-    no: number | string
+    id: string
+    no: number
     title: string
     length: string
 }
 
 const ZealTable = () => {
     const [messageApi, contextHolder] = message.useMessage();
-    const {pagination, pageModalRef, setTotal,setPageNo} = usePagination(fetchData);
+    const [modal, contextModalHolder] = Modal.useModal();
+    const {pagination, pageModalRef, setTotal, setPageNo} = usePagination(fetchData);
     const searchFormItems = useDecorateForm<SongType>([
         {
             key: "no",
@@ -51,8 +56,8 @@ const ZealTable = () => {
         {
             key: "no",
             label: "No",
-            allowClear: true,
             value: null,
+            required: true,
             render2: (f) => renderInputNumber({}, f)
         },
         {
@@ -60,6 +65,8 @@ const ZealTable = () => {
             label: "Title",
             value: null,
             allowClear: true,
+            required: true,
+            requiredHint: (l) => `${l} is not empty`,
             render2: (f) => renderInput({}, f),
         },
         {
@@ -74,17 +81,21 @@ const ZealTable = () => {
         {no: 3, title: 'Wonderwall', length: '4:18'},
         {no: 4, title: 'Don\'t Look Back in Anger', length: '4:48'},
         {no: 12, title: 'Champagne Supernova', length: '7:27'},
-        ...Array.from({length: 50}).map((_, i) => ({no: i + 13, title: `test Data ${i + 1}`, length: `${i * i}`}))
-    ])
+    ].map(it => ({...it, id: React.useId()})))
+    const [referId, setReferId] = useState<string | number>(-1);
+    const [selRowKeys, setSelRowKeys] = useState<React.Key[]>([]);
     const [tableData, setTableData] = useState<SongType[]>([])
     const [tableLoading, setTableLoading] = useState<boolean>(false);
     const useForm = useDyForm([formItems, setFormItems])
     const adZealTableSearchRef = useRef<adZealTableSearchRef<SongType>>(null)
+    const addFormRef = useRef<adDynamicFormRef<SongType>>(null)
+    const upModalRef = useRef<adPopupModalRef>(null)
     const columns: TableProps<SongType>['columns'] = [
         {
             title: 'No',
             dataIndex: 'no',
-            key: 'np',
+            key: 'no',
+            width: 80
         },
         {
             title: 'Title',
@@ -100,21 +111,19 @@ const ZealTable = () => {
             title: 'Action',
             key: 'action',
             fixed: 'right',
-            width: 180,
+            width: 160,
+            align: 'center',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size='small' color='orange' variant={'dashed'} onClick={() => {
-
-                    }}>Update</Button>
-                    <Button size='small' color='red' variant={'dashed'} onClick={() => {
-
-                        messageApi.success('删除成功')
-                    }}>Delete</Button>
+                    <Button size='small' color='orange' variant={'dashed'}
+                            onClick={() => upItem(record)}>Update</Button>
+                    <Button size='small' color='red' variant={'dashed'} onClick={() => delItem(record)}>Delete</Button>
                 </Space>
             ),
         },
     ];
 
+    // function
     async function fetchData(pn?: number, ps?: number) {
         setTableLoading(true)
         // console.log(pn,ps) // new value
@@ -125,7 +134,7 @@ const ZealTable = () => {
             setTimeout(() => {
                 const start = (pageNo - 1) * pageSize
                 const {length, no, title} = params!
-                const data = zealData.filter(it => (!length || it.length.includes(length)) && (!title || it.title.includes(title)) && (!no || it.no === parseInt(no as string)))
+                const data = zealData.filter(it => (!length || it.length.includes(length)) && (!title || it.title.includes(title)) && (!no || it.no === no))
                 resolve({
                     data: data.slice(start, start + pageSize),
                     total: data.length
@@ -137,14 +146,66 @@ const ZealTable = () => {
         setTableLoading(false)
     }
 
+    const addItem = () => {
+        setReferId(-1)
+        upModalRef.current?.toggle()
+        useForm.onReset()
+    }
+
+    function upItem(r: SongType) {
+        setReferId(r.id)
+        upModalRef.current?.toggle()
+        useForm.setValues(r)
+    }
+
+    function delItem(r: SongType) {
+        setTableData(p => p.filter(it => r.id !== it.id))
+        messageApi.success('Delete Successful')
+    }
+
+    const delSelect = async () => {
+        const confirmed = await modal.confirm({
+            title: `Delete?`,
+            content: (<>
+                <p>Confirm {selRowKeys.toString()} items</p>
+            </>)
+        })
+        if (confirmed) {
+            setTableData(p => p.filter(it => !selRowKeys.includes(it.id)))
+            message.success(`delete ${selRowKeys} successful`)
+            setSelRowKeys([])
+        }
+    }
+    const popSubmit = () => new Promise<boolean>(resolve => {
+        addFormRef.current?.validator().then(v => {
+            let msg = ''
+            if (referId === -1) {
+                msg = 'add successful'
+                setTableData(p => [...p, {...v, id: Date.now().toString()}])
+            } else {
+                msg = 'update successful'
+                setTableData(p => p.map(it => {
+                    if (it.id === referId) return {...it, ...v}
+                    return it
+                }))
+            }
+            message.success(msg)
+            resolve(true)
+            // fetchData()
+        }).catch(e => {
+            message.error(e?.message || '验证不通过')
+            resolve(false)
+        })
+    })
     useEffect(() => {
         fetchData()
     }, []);
     return (
         <>
             {contextHolder}
+            {contextModalHolder}
             <AdZealCard
-                title="zeal test"
+                outPadding={20}
                 footer={({isMobile}) => <AdZealTablePaginationControl
                     prefix={({total}) => <span>Total {total}</span>}
                     isMobile={isMobile}
@@ -154,16 +215,14 @@ const ZealTable = () => {
                     }}
                 />}
                 controlBtn={() => <>
-                    <Button color={'green'} variant={'dashed'} size='small' onClick={() => {
-
-                    }}>Add</Button>
-                    <Button color={'red'} variant={'dashed'} size='small' onClick={() => {
-
-                    }}>Del</Button>
+                    <Button color={'green'} variant={'dashed'} size='small' onClick={addItem}>Add</Button>
+                    <Button color={'red'} variant={'dashed'} size='small' disabled={!selRowKeys.length}
+                            onClick={delSelect}>Del</Button>
                 </>}
                 toolBtn={() => <Button variant={'dashed'} size='small'>Tools...</Button>}
                 header={({isMobile}) =>
                     <AdZealTableSearch<SongType>
+                        title="zeal test"
                         ref={adZealTableSearchRef}
                         isMobile={isMobile}
                         searchItemsState={searchFormItems}
@@ -171,22 +230,31 @@ const ZealTable = () => {
                             setPageNo(1)
                             fetchData()
                         }}
-                        onReset={()=>{
+                        onReset={() => {
                             setPageNo(1)
                             fetchData()
                         }}
                     />
                 }
+                rest={() => <AdPopupModal draggable title={referId === -1 ? 'Add item' : 'Update item'} ref={upModalRef}
+                                          onSubmit={popSubmit}>
+                    <AdDynamicForm items={formItems} ref={addFormRef}/>
+                </AdPopupModal>}
             >
-                {({tableHeight,footerH}) => (
+                {({tableHeight, footerH}) => (
                     <>
                         <Table
                             loading={tableLoading}
-                            scroll={{ y: tableHeight - footerH, x: 900 }}
+                            scroll={{y: tableHeight - footerH, x: 800}}
                             dataSource={tableData}
                             columns={columns}
                             pagination={false}
-                            rowKey={(d) => d.no}
+                            rowKey={(d) => d.id}
+                            rowSelection={{
+                                onChange: (selectedRowKeys: React.Key[], selectedRows: SongType[]) => {
+                                    setSelRowKeys(selectedRowKeys)
+                                }
+                            }}
                         />
                     </>
                 )}

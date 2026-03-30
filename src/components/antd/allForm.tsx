@@ -61,6 +61,8 @@ const AllForm = () => {
                 {f: <b>男</b>, v: 0},
                 {f: '女', v: 1}
             ],
+            required:true,
+            requiredHint:l=>`${l} is not empty`,
             render2: (f) => renderSelect([], {}, f)
         },
         {
@@ -209,7 +211,7 @@ const AllForm = () => {
     }
     return (
         <div className='dynamicFormTest'>
-            <AdDynamicForm ref={antdFormRef} rules={rules} items={formItems}/>
+            <AdDynamicForm ref={antdFormRef} rules={rules} items={formItems} validateTrigger={null}/>
             <div className="footer" style={{
                 display: 'flex',
                 gap: '5px'
